@@ -1,5 +1,5 @@
 repeat task.wait() until game:IsLoaded()
-if shared.vape then shared.vape:Uninject() end
+if shared.rust then shared.rust:Uninject() end
 
 -- why do exploits fail to implement anything correctly? Is it really that hard?
 if identifyexecutor then
@@ -8,11 +8,11 @@ if identifyexecutor then
 	end
 end
 
-local vape
+local rust
 local loadstring = function(...)
 	local res, err = loadstring(...)
-	if err and vape then
-		vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert')
+	if err and rust then
+		rust:CreateNotification('Rust', 'Failed to load : '..err, 30, 'alert')
 	end
 	return res
 end
@@ -31,13 +31,13 @@ local playersService = cloneref(game:GetService('Players'))
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/'..select(1, path:gsub('rust/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -45,73 +45,73 @@ local function downloadFile(path, func)
 end
 
 local function finishLoading()
-	vape.Init = nil
-	vape:Load()
+	rust.Init = nil
+	rust:Load()
 	task.spawn(function()
 		repeat
-			vape:Save()
+			rust:Save()
 			task.wait(10)
-		until not vape.Loaded
+		until not rust.Loaded
 	end)
 
 	local teleportedServers
-	vape:Clean(playersService.LocalPlayer.OnTeleport:Connect(function()
-		if (not teleportedServers) and (not shared.VapeIndependent) then
+	rust:Clean(playersService.LocalPlayer.OnTeleport:Connect(function()
+		if (not teleportedServers) and (not shared.RustIndependent) then
 			teleportedServers = true
 			local teleportScript = [[
-				shared.vapereload = true
-				if shared.VapeDeveloper then
-					loadstring(readfile('newvape/loader.lua'), 'loader')()
+				shared.rustreload = true
+				if shared.RustDeveloper then
+					loadstring(readfile('rust/loader.lua'), 'loader')()
 				else
-					loadstring(game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true), 'loader')()
+					loadstring(game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/loader.lua', true), 'loader')()
 				end
 			]]
-			if shared.VapeDeveloper then
-				teleportScript = 'shared.VapeDeveloper = true\n'..teleportScript
+			if shared.RustDeveloper then
+				teleportScript = 'shared.RustDeveloper = true\n'..teleportScript
 			end
-			if shared.VapeCustomProfile then
-				teleportScript = 'shared.VapeCustomProfile = "'..shared.VapeCustomProfile..'"\n'..teleportScript
+			if shared.RustCustomProfile then
+				teleportScript = 'shared.RustCustomProfile = "'..shared.RustCustomProfile..'"\n'..teleportScript
 			end
-			vape:Save()
+			rust:Save()
 			queue_on_teleport(teleportScript)
 		end
 	end))
 
-	if not shared.vapereload then
-		if not vape.Categories then return end
-		if vape.Categories.Main.Options['GUI bind indicator'].Enabled then
-			vape:CreateNotification('Finished Loading', vape.VapeButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(vape.Keybind, ' + '):upper()..' to open GUI', 5)
+	if not shared.rustreload then
+		if not rust.Categories then return end
+		if rust.Categories.Main.Options['GUI bind indicator'].Enabled then
+			rust:CreateNotification('Finished Loading', rust.RustButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(rust.Keybind, ' + '):upper()..' to open GUI', 5)
 		end
 	end
 end
 
-if not isfile('newvape/profiles/gui.txt') then
-	writefile('newvape/profiles/gui.txt', 'rise')
+if not isfile('rust/profiles/gui.txt') then
+	writefile('rust/profiles/gui.txt', 'rise')
 end
-local gui = readfile('newvape/profiles/gui.txt')
+local gui = readfile('rust/profiles/gui.txt')
 
-if not isfolder('newvape/assets/'..gui) then
-	makefolder('newvape/assets/'..gui)
+if not isfolder('rust/assets/'..gui) then
+	makefolder('rust/assets/'..gui)
 end
-vape = loadstring(downloadFile('newvape/guis/'..gui..'.lua'), 'gui')()
-shared.vape = vape
+rust = loadstring(downloadFile('rust/guis/'..gui..'.lua'), 'gui')()
+shared.rust = rust
 
-if not shared.VapeIndependent then
-	loadstring(downloadFile('newvape/games/universal.lua'), 'universal')()
-	if isfile('newvape/games/'..game.PlaceId..'.lua') then
-		loadstring(readfile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+if not shared.RustIndependent then
+	loadstring(downloadFile('rust/games/universal.lua'), 'universal')()
+	if isfile('rust/games/'..game.PlaceId..'.lua') then
+		loadstring(readfile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 	else
-		if not shared.VapeDeveloper then
+		if not shared.RustDeveloper then
 			local suc, res = pcall(function()
-				return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('newvape/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
+				return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
 			end)
 			if suc and res ~= '404: Not Found' then
-				loadstring(downloadFile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+				loadstring(downloadFile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 			end
 		end
 	end
 	finishLoading()
 else
-	vape.Init = finishLoading
-	return vape
+	rust.Init = finishLoading
+	return rust
 end

@@ -6,13 +6,13 @@ local replicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local inputService = cloneref(game:GetService('UserInputService'))
 
 local lplr = playersService.LocalPlayer
-local vape = shared.vape
-local entitylib = vape.Libraries.entity
-local sessioninfo = vape.Libraries.sessioninfo
+local rust = shared.rust
+local entitylib = rust.Libraries.entity
+local sessioninfo = rust.Libraries.sessioninfo
 local bedwars = {}
 
 local function notif(...)
-	return vape:CreateNotification(...)
+	return rust:CreateNotification(...)
 end
 
 run(function()
@@ -49,14 +49,14 @@ run(function()
 	local wins = sessioninfo:AddItem('Wins')
 	local games = sessioninfo:AddItem('Games')
 
-	vape:Clean(function()
+	rust:Clean(function()
 		table.clear(bedwars)
 	end)
 end)
 
-for _, v in vape.Modules do
+for _, v in rust.Modules do
 	if v.Category == 'Combat' or v.Category == 'Minigames' then
-		vape:Remove(i)
+		rust:Remove(i)
 	end
 end
 
@@ -64,7 +64,7 @@ run(function()
 	local Sprint
 	local old
 	
-	Sprint = vape.Categories.Combat:CreateModule({
+	Sprint = rust.Categories.Combat:CreateModule({
 		Name = 'Sprint',
 		Function = function(callback)
 			if callback then
@@ -90,7 +90,7 @@ end)
 run(function()
 	local AutoGamble
 	
-	AutoGamble = vape.Categories.Minigames:CreateModule({
+	AutoGamble = rust.Categories.Minigames:CreateModule({
 		Name = 'AutoGamble',
 		Function = function(callback)
 			if callback then

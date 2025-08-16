@@ -292,7 +292,7 @@ local function downloadFile(path, func)
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -2461,7 +2461,7 @@ function mainapi:Load(skipgui, profile)
 		guidata = loadJson('rust/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
-			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
+			self:CreateNotification('Rust', 'Failed to load GUI settings.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -2495,7 +2495,7 @@ function mainapi:Load(skipgui, profile)
 				Modules = {},
 				Legit = {}
 			}
-			self:CreateNotification('Vape', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
+			self:CreateNotification('Rust', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -2552,11 +2552,11 @@ function mainapi:Load(skipgui, profile)
 		image.Size = UDim2.fromOffset(26, 26)
 		image.Position = UDim2.fromOffset(3, 3)
 		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('rust/assets/new/vape.png')
+		image.Image = getcustomasset('rust/assets/new/rust.png')
 		image.Parent = button
 		local buttoncorner = Instance.new('UICorner')
 		buttoncorner.Parent = button
-		self.VapeButton = button
+		self.RustButton = button
 		button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
@@ -2702,9 +2702,9 @@ function mainapi:Uninject()
 	mainapi.gui:Destroy()
 	table.clear(mainapi.Libraries)
 	loopClean(mainapi)
-	shared.vape = nil
-	shared.vapereload = nil
-	shared.VapeIndependent = nil
+	shared.rust = nil
+	shared.rustreload = nil
+	shared.rustIndependent = nil
 end
 
 gui = Instance.new('ScreenGui')
@@ -3046,7 +3046,7 @@ mainapi.Categories.Main:CreateDropdown({
 	Function = function(val, mouse)
 		if mouse then
 			writefile('rust/profiles/gui.txt', val)
-			shared.vapereload = true
+			shared.rustreload = true
 		    loadfile("rust/init.lua")()
 		end
 	end
@@ -3101,7 +3101,7 @@ mainapi.Categories.Main:CreateDropdown({
 		if mouse then
 			writefile("rust/profiles/color.txt", httpService:JSONEncode(colors[val]))
 			mainapi:Save()
-			shared.vapereload = true
+			shared.rustreload = true
 			loadfile("rust/main.lua")()
 		end
 	end
@@ -3125,7 +3125,7 @@ mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
 mainapi.Categories.Main:CreateButton({
 	Name = 'Reinject',
 	Function = function()
-		shared.vapereload = true
+		shared.rustreload = true
 		loadfile("rust/init.lua")()
 	end
 })

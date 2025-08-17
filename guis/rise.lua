@@ -141,19 +141,11 @@ local getfontsize = function(text, size, font)
 	return textService:GetTextBoundsAsync(fontsize)
 end
 
-getcustomasset = function(path)
-    return getcustomassets[path] or ''
+getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
+	return downloadFile(path, assetfunction)
+end or function(path)
+	return getcustomassets[path] or ''
 end
-local assetfunction = getcustomasset
---[[getcustomasset = function(path)
-    if not inputService.TouchEnabled and assetfunction then
-        return downloadFile(path, assetfunction)
-    elseif identifyexecutor():lower():find("delta") and assetfunction then
-        return downloadFile(path, assetfunction)
-    else
-        return getcustomassets[path] or ''
-    end
-end]]--
 
 local function addBlur(parent)
 	local blur = Instance.new('ImageLabel')

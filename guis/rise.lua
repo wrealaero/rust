@@ -142,13 +142,17 @@ local getfontsize = function(text, size, font)
 end
 
 getcustomasset = function(path)
-	    if not inputService.TouchEnabled and assetfunction then
-	        	return downloadFile(path, assetfunction)
-	    elseif identifyexecutor():lower():find("delta") and assetfunction then
-		        return downloadFile(path, assetfunction)
-	    else
-		        return getcustomassets[path] or ''
-	    end
+    return getcustomassets[path] or ''
+end
+local assetfunction = getcustomasset
+getcustomasset = function(path)
+    if not inputService.TouchEnabled and assetfunction then
+        return downloadFile(path, assetfunction)
+    elseif identifyexecutor():lower():find("delta") and assetfunction then
+        return downloadFile(path, assetfunction)
+    else
+        return getcustomassets[path] or ''
+    end
 end
 
 local function addBlur(parent)

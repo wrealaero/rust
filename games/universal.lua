@@ -5691,7 +5691,7 @@ run(function()
 				
 				local ind = 1
 				repeat
-					local message = (#Lines.ListEnabled > 0 and Lines.ListEnabled[math.random(1, #Lines.ListEnabled)] or 'vxpe on top')
+					local message = (#Lines.ListEnabled > 0 and Lines.ListEnabled[math.random(1, #Lines.ListEnabled)] or 'rust mogs your bloodline you subhuman')
 					if Mode.Value == 'Order' and #Lines.ListEnabled > 0 then
 						message = Lines.ListEnabled[ind] or Lines.ListEnabled[1]
 						ind = (ind % #Lines.ListEnabled) + 1

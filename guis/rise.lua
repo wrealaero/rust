@@ -120,14 +120,15 @@ local themecolors = {
 }
 
 local getcustomassets = {
-	['newvape/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
-	--['newvape/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
-	['newvape/assets/rise/blur.png'] = 'rbxassetid://14898786664',
+	['rust/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
+	['rust/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
+	['rust/assets/rise/blur.png'] = 'rbxassetid://14898786664',
 	['rust/assets/rise/add.png'] = 'rbxassetid://14368300605',
 	['rust/assets/rise/close.png'] = 'rbxassetid://14368309446',
 	['rust/assets/rise/closemini.png'] = 'rbxassetid://14368310467',
 	['rust/assets/rise/search.png'] = 'rbxassetid://14425646684'
 }
+
 
 local isfile = isfile or function(file)
 	local suc, res = pcall(function()

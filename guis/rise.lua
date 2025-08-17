@@ -122,7 +122,7 @@ local themecolors = {
 local getcustomassets = {
 	['rust/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
 	['rust/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
-	['rust/assets/rise/blur.png'] = 'rbxassetid://14898786664',
+	['rust/assets/new/blur.png'] = 'rbxassetid://14898786664',
 }
 
 local isfile = isfile or function(file)

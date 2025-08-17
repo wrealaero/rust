@@ -145,7 +145,7 @@ getcustomasset = function(path)
     return getcustomassets[path] or ''
 end
 local assetfunction = getcustomasset
-getcustomasset = function(path)
+--[[getcustomasset = function(path)
     if not inputService.TouchEnabled and assetfunction then
         return downloadFile(path, assetfunction)
     elseif identifyexecutor():lower():find("delta") and assetfunction then
@@ -153,7 +153,7 @@ getcustomasset = function(path)
     else
         return getcustomassets[path] or ''
     end
-end
+end]]--
 
 local function addBlur(parent)
 	local blur = Instance.new('ImageLabel')

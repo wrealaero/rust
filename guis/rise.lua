@@ -212,11 +212,11 @@ local function createDownloader(text)
 			downloader.TextStrokeTransparency = 0
 			downloader.TextSize = 20
 			downloader.TextColor3 = Color3.new(1, 1, 1)
-			downloader.FontFace = Font.fromEnum(Enum.Font.Arial)
+			downloader.FontFace = Font.fromEnum(Enum.Font.Gotham)
 			downloader.Parent = mainapi.gui
 			mainapi.Downloader = downloader
 		end
-		downloader.Text = 'Downloading '..text
+		downloader.Text = 'Installing '..text
 	end
 end
 
@@ -304,6 +304,15 @@ local function downloadFile(path, func)
 	end
 	return (func or readfile)(path)
 end
+
+getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
+	return downloadFile(path, assetfunction)
+end or identifyexecutor():lower():find("delta") and assetfunction and function(path)
+	return downloadFile(path, assetfunction)
+end or function(path)
+	return getcustomassets[path] or ''
+end
+
 
 local function getTableSize(tab)
 	local ind = 0

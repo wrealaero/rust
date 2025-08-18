@@ -122,13 +122,17 @@ local themecolors = {
 local getcustomassets = {
 	['rust/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
 	['rust/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
+	['rust/assets/rise/arrowmodule.png'] = 'rbxassetid://14473354880',
 	['rust/assets/rise/blur.png'] = 'rbxassetid://14898786664',
+	['rust/assets/rise/blockedicon.png'] = 'rbxassetid://14385669108',
+	['rust/assets/rise/blockedtab.png'] = 'rbxassetid://14385672881',
 	['rust/assets/rise/add.png'] = 'rbxassetid://14368300605',
 	['rust/assets/rise/close.png'] = 'rbxassetid://14368309446',
 	['rust/assets/rise/closemini.png'] = 'rbxassetid://14368310467',
-	['rust/assets/rise/search.png'] = 'rbxassetid://14425646684'
+	['rust/assets/rise/radaricon.png'] = 'rbxassetid://14368343291',
+	['rust/assets/rise/search.png'] = 'rbxassetid://14425646684',
+	['rust/assets/rise/textguiicon.png'] = 'rbxassetid://14368355456',
 }
-
 
 local isfile = isfile or function(file)
 	local suc, res = pcall(function()

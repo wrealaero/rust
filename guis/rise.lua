@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -2111,7 +2112,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 	local colorsort
 	local categoryapi = self:CreateCategory(categorysettings)
 	categoryapi.Type = 'CategoryTheme'
-	categoryapi.Theme = 'Blend'
+	categoryapi.Theme = 'Steel Fade'
 	local scrollframe = categoryapi.Sort.Parent
 	local sortlabel = Instance.new('TextLabel')
 	sortlabel.Size = UDim2.fromOffset(404, 15)
@@ -2157,7 +2158,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 		if uipallet.SelectedTheme then
 			uipallet.SelectedTheme.TextColor3 = uipallet.Text
 		end
-		val = uipallet.Themes[val] and val or 'Blend'
+		val = uipallet.Themes[val] and val or 'Steel Fade'
 		self.Theme = val
 		local obj
 		for i, v in uipallet.ThemeObjects do

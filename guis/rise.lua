@@ -1,4 +1,5 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -2244,7 +2245,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 		namelabel.FontFace = uipallet.Font
 		namelabel.ZIndex = 2
 		namelabel.Parent = button
-		if title == 'Blend' then
+		if title == 'Steel Fade' then
 			uipallet.SelectedTheme = namelabel
 		end
 

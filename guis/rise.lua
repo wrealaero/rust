@@ -418,6 +418,31 @@ do
 end
 
 local getfontsize = function(text, size, font)
+    fontsize.Text = text
+    fontsize.Size = size
+
+    if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
+        if font == Enum.Font.Arial then
+            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+        else
+            fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+        end
+    elseif typeof(font) == "Font" then
+        if font.Family == "" or font.Family == nil then
+            warn("Invalid Font object with empty AssetId, falling back to custom font")
+            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+        else
+            fontsize.Font = font
+        end
+    else
+        fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+    end
+
+    return textService:GetTextBoundsAsync(fontsize)
+end
+
+--[[
+local getfontsize = function(text, size, font)
 		local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown";
 		if ( (not execName) == "Delta" ) or ( (not execName) == "Krnl" ) then
 				fontsize.Text = text;
@@ -443,11 +468,11 @@ local getfontsize = function(text, size, font)
 				        end;
 				else
 				        fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
-				end		;
+				end;
 		end;
 		return textService:GetTextBoundsAsync(fontsize);
 end;
-
+]]--
 do
 	local function getBlendFactor(vec)
 		return math.sin(DateTime.now().UnixTimestampMillis / 600 + vec.X * 0.005 + vec.Y * 0.06) * 0.5 + 0.5

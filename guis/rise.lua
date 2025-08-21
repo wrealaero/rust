@@ -426,25 +426,27 @@ local getfontsize = function(text, size, font)
 						fontsize.Font = font;
 				end;
 		else
-				fontsize.Text = text;
-				fontsize.Size = size;
+				fontsize.Text = text
+				fontsize.Size = size
 				if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
-				        if font == Enum.Font.Arial then
-				            	fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
-				        else
-				            	fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal);
-				        end;
+						if font == Enum.Font.Arial then
+								fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+						else
+								fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+						end
 				elseif typeof(font) == "Font" then
-				        if font.Family == "" or font.Family == nil then
-				            	warn("Invalid Font object with empty AssetId, falling back to custom font");
-				            	fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
-				        else
-				            	fontsize.Font = font;
-				        end;
+						if not font.Family or font.Family == "" then
+								warn("Invalid Font object with empty AssetId, using fallback")
+								fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+						else
+								fontsize.Font = font
+						end
 				else
-				        fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
-				end;
-		end;
+						fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+				end
+				if not fontsize.Font or not fontsize.Font.Family or fontsize.Font.Family == "" then
+						fontsize.Font = Font.fromEnum(Enum.Font.Gotham)
+				end
 		return textService:GetTextBoundsAsync(fontsize);
 end;
 

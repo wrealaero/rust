@@ -308,8 +308,6 @@ end
 
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
 	return downloadFile(path, assetfunction)
-end or identifyexecutor():lower():find("delta") and assetfunction and function(path)
-	return downloadFile(path, assetfunction)
 end or function(path)
 	return getcustomassets[path] or ''
 end

@@ -11,13 +11,14 @@ if identifyexecutor then
     end
 end
 
-local loadstring: any = function(...)
-        local res: any, err: string? = loadstring(...);
-	      if err and vape then
-		            vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert');
-	      end;
-	      return res;
-end;
+local old_loadstring = loadstring
+local loadstring = function(...)
+    local res, err = old_loadstring(...)
+    if err and rust then
+        rust:CreateNotification('Rust', 'Failed to load : '..err, 30, 'alert')
+    end
+    return res
+end
 
 local queue_on_teleport = queue_on_teleport or function() end
 local isfile = isfile or function(file)

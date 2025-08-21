@@ -142,15 +142,6 @@ local isfile = isfile or function(file)
 	return suc and res ~= nil and res ~= ''
 end
 
-local getfontsize = function(text, size, font)
-	fontsize.Text = text
-	fontsize.Size = size
-	if typeof(font) == 'Font' then
-		fontsize.Font = font
-	end
-	return textService:GetTextBoundsAsync(fontsize)
-end
-
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
 	return downloadFile(path, assetfunction)
 end or function(path)
@@ -323,7 +314,6 @@ end or function(path)
 	return getcustomassets[path] or ''
 end
 
-
 local function getTableSize(tab)
 	local ind = 0
 	for _ in tab do ind += 1 end
@@ -380,7 +370,6 @@ local function makeDraggable(obj, window)
 	end)
 end
 
-
 local function randomString()
 	local array = {}
 	for i = 1, math.random(10, 100) do
@@ -429,6 +418,37 @@ do
 
 	fontsize.Font = uipallet.Font
 end
+
+local getfontsize = function(text, size, font)
+		local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown";
+		if ( (not execName) == "Delta" ) or ( (not execName) == "Krnl" ) then
+				fontsize.Text = text;
+				fontsize.Size = size;
+				if typeof(font) == 'Font' then
+						fontsize.Font = font;
+				end;
+		else
+				fontsize.Text = text;
+				fontsize.Size = size;
+				if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
+				        if font == Enum.Font.Arial then
+				            	fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
+				        else
+				            	fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal);
+				        end;
+				elseif typeof(font) == "Font" then
+				        if font.Family == "" or font.Family == nil then
+				            	warn("Invalid Font object with empty AssetId, falling back to custom font");
+				            	fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
+				        else
+				            	fontsize.Font = font;
+				        end;
+				else
+				        fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham);
+				end		;
+		end;
+		return textService:GetTextBoundsAsync(fontsize);
+end;
 
 do
 	local function getBlendFactor(vec)

@@ -11,17 +11,13 @@ if identifyexecutor then
     end
 end
 
-local function loadstrings(code, name)
-    local fn, err = loadstring(code, name)
-    if not fn then
-        if shared.rust then
-            rust:CreateNotification('Rust', 'Failed to load '..name..' : '..err, 30, 'alert')
-        else
-            error(err)
-        end
-    end
-    return fn
-end
+local loadstring: any = function(...)
+        local res: any, err: string? = loadstring(...);
+	      if err and vape then
+		            vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert');
+	      end;
+	      return res;
+end;
 
 local queue_on_teleport = queue_on_teleport or function() end
 local isfile = isfile or function(file)
@@ -103,21 +99,21 @@ if not isfolder('rust/assets/'..gui) then
     makefolder('rust/assets/'..gui)
 end
 
-rust = loadstrings(downloadFile('rust/guis/'..gui..'.lua'), 'gui')()
+rust = loadstring(downloadFile('rust/guis/'..gui..'.lua'), 'gui')()
 shared.rust = rust
 
 if not shared.RustIndependent then
-    loadstrings(downloadFile('rust/games/universal.lua'), 'universal')()
+    loadstring(downloadFile('rust/games/universal.lua'), 'universal')()
     
     if isfile('rust/games/'..game.PlaceId..'.lua') then
-        loadstrings(readfile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))()
+        loadstring(readfile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))()
     else
         if not shared.RustDeveloper then
             local suc, res = pcall(function()
                 return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
             end)
             if suc and res ~= '404: Not Found' then
-                loadstrings(downloadFile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))()
+                loadstring(downloadFile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))()
             end
         end
     end

@@ -9,12 +9,13 @@ if identifyexecutor then
 end
 
 local rust
-local loadstring = function(...)
-	local res, err = loadstring(...)
+local old_loadstring = loadstring
+loadstring = function(code, chunkname)
+	local fn, err = old_loadstring(code, chunkname)
 	if err and rust then
-		rust:CreateNotification('Rust', 'Failed to load : '..err, 30, 'alert')
+		rust:CreateNotification("Rust", "Failed to load: " .. err, 30, "alert")
 	end
-	return res
+	return fn
 end
 local queue_on_teleport = queue_on_teleport or function() end
 local isfile = isfile or function(file)

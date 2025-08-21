@@ -10,12 +10,12 @@ end
 
 local rust
 local old_loadstring = loadstring
-loadstring = function(code, chunkname)
-	local fn, err = old_loadstring(code, chunkname)
+local loadstrings = function(...)
+	local res, err = old_loadstring(...)
 	if err and rust then
-		rust:CreateNotification("Rust", "Failed to load: " .. err, 30, "alert")
+		rust:CreateNotification('Rust', 'Failed to load : '..err, 30, 'alert')
 	end
-	return fn
+	return res
 end
 local queue_on_teleport = queue_on_teleport or function() end
 local isfile = isfile or function(file)
@@ -94,20 +94,20 @@ local gui = readfile('rust/profiles/gui.txt')
 if not isfolder('rust/assets/'..gui) then
 	makefolder('rust/assets/'..gui)
 end
-rust = loadstring(downloadFile('rust/guis/'..gui..'.lua'), 'gui')()
+rust = loadstrings(downloadFile('rust/guis/'..gui..'.lua'), 'gui')()
 shared.rust = rust
 
 if not shared.RustIndependent then
-	loadstring(downloadFile('rust/games/universal.lua'), 'universal')()
+	loadstrings(downloadFile('rust/games/universal.lua'), 'universal')()
 	if isfile('rust/games/'..game.PlaceId..'.lua') then
-		loadstring(readfile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+		loadstrings(readfile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 	else
 		if not shared.RustDeveloper then
 			local suc, res = pcall(function()
 				return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
 			end)
 			if suc and res ~= '404: Not Found' then
-				loadstring(downloadFile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+				loadstrings(downloadFile('rust/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 			end
 		end
 	end

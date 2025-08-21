@@ -15,7 +15,7 @@ local function loadstrings(code, name)
     local fn, err = loadstring(code, name)
     if not fn then
         if shared.rust then
-            shared.rust:CreateNotification('Rust', 'Failed to load '..name..' : '..err, 30, 'alert')
+            rust:CreateNotification('Rust', 'Failed to load '..name..' : '..err, 30, 'alert')
         else
             error(err)
         end

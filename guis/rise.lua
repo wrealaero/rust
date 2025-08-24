@@ -34,6 +34,7 @@ local inputService = cloneref(game:GetService('UserInputService'))
 local textService = cloneref(game:GetService('TextService'))
 local guiService = cloneref(game:GetService('GuiService'))
 local httpService = cloneref(game:GetService('HttpService'))
+local runService = cloneref(game:GetService('RunService'))
 local fpsmode = inputService.TouchEnabled
 
 local fontsize = Instance.new('GetTextBoundsParams')
@@ -142,6 +143,15 @@ local isfile = isfile or function(file)
 	return suc and res ~= nil and res ~= ''
 end
 
+local getfontsize = function(text, size, font)
+	fontsize.Text = text
+	fontsize.Size = size
+	if typeof(font) == 'Font' then
+		fontsize.Font = font
+	end
+	return textService:GetTextBoundsAsync(fontsize)
+end
+
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
 	return downloadFile(path, assetfunction)
 end or function(path)
@@ -239,7 +249,6 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.MaxTextSize = 16
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
-
 	button.MouseButton1Down:Connect(function()
 		heldbutton = true
 		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
@@ -259,7 +268,6 @@ local function createMobileButton(buttonapi, position)
 		buttonapi:Toggle()
 		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
 	end)
-
 	buttonapi.Bind = {Button = button}
 end
 
@@ -308,9 +316,12 @@ end
 
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
 	return downloadFile(path, assetfunction)
+end or identifyexecutor():lower():find("delta") and assetfunction and function(path)
+	return downloadFile(path, assetfunction)
 end or function(path)
 	return getcustomassets[path] or ''
 end
+
 
 local function getTableSize(tab)
 	local ind = 0
@@ -368,6 +379,7 @@ local function makeDraggable(obj, window)
 	end)
 end
 
+
 local function randomString()
 	local array = {}
 	for i = 1, math.random(10, 100) do
@@ -415,40 +427,6 @@ do
 	end
 
 	fontsize.Font = uipallet.Font
-end
-
-local getfontsize = function(text, size, font)
-    local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown"
-    if ( (not execName) == "Delta" ) or ( (not execName) == "Krnl" ) then
-        fontsize.Text = text
-        fontsize.Size = size
-        if typeof(font) == 'Font' then
-            fontsize.Font = font
-        end
-    else
-        fontsize.Text = text
-        fontsize.Size = size
-        if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
-            if font == Enum.Font.Arial then
-                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-            else
-                fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-            end
-        elseif typeof(font) == "Font" then
-            if not font.Family or font.Family == "" then
-                warn("Invalid Font object with empty AssetId, using fallback")
-                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-            else
-                fontsize.Font = font
-            end
-        else
-            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-        end
-        if not fontsize.Font or not fontsize.Font.Family or fontsize.Font.Family == "" then
-            fontsize.Font = Font.fromEnum(Enum.Font.Gotham)
-        end
-    end 
-    return textService:GetTextBoundsAsync(fontsize)
 end
 
 do
@@ -1946,95 +1924,103 @@ function mainapi:CreateCategory(categorysettings)
 				Size = UDim2.fromOffset(566, height)
 			})
 		end)
-    	if inputService.TouchEnabled then
-            local optionbutton = Instance.new("TextButton", modulebutton)
-            optionbutton.Size = UDim2.fromScale(0.09, 0.09)
-            optionbutton.Position = UDim2.fromScale(0.85, 0.15)
-            optionbutton.BackgroundColor3 = Color3.new(1,1,1)
-            optionbutton.BackgroundTransparency = 0.9
-            optionbutton.Text = ""
-            optionbutton.SizeConstraint = "RelativeXX"
-            addCorner(optionbutton, UDim.new(0, 500))
-            
-            optionbutton.MouseButton1Click:Connect(function()
-                modulechildren.Visible = not modulechildren.Visible
-    			local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-    			tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-    				Size = UDim2.fromOffset(566, height)
-    			})
-            end)
-            
-			local heldbutton = false
-			modulebutton.MouseButton1Down:Connect(function()
-				heldbutton = true
-				local holdtime, holdpos = tick(), inputService:GetMouseLocation()
-				repeat
-					heldbutton = (inputService:GetMouseLocation() - holdpos).Magnitude < 3
-					task.wait()
-				until (tick() - holdtime) > 1 or not heldbutton or not clickgui.Visible
-				if heldbutton and clickgui.Visible then
-					if mainapi.ThreadFix then
-						setthreadidentity(8)
-					end
-					if guiTween then
-        				guiTween:Cancel()
-        			end
-        			mainapi.Visible = not mainapi.Visible
-        			guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-        				Scale = mainapi.Visible and 1 or 0
-        			})
-        			guiTween:Play()
-        			if mainapi.Visible then
-        				clickgui.Visible = mainapi.Visible
-        			else
-        				guiTween.Completed:Connect(function()
-        					clickgui.Visible = mainapi.Visible
-        				end)
-        			end
-					--tooltip.Visible = false
-					--mainapi:BlurCheck()
-					for _, mobileButton in mainapi.Modules do
-						if mobileButton.Bind.Button then
-							mobileButton.Bind.Button.Visible = true
-						end
-					end
 
-					local touchconnection
-					touchconnection = inputService.InputBegan:Connect(function(inputType)
-						if inputType.UserInputType == Enum.UserInputType.Touch then
-							if self.ThreadFix then setthreadidentity(8) end
-							createMobileButton(moduleapi, inputType.Position + Vector3.new(0, guiService:GetGuiInset().Y, 0))
-							if guiTween then
-                				guiTween:Cancel()
-                			end
-                			mainapi.Visible = not mainapi.Visible
-                			guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-                				Scale = mainapi.Visible and 1 or 0
-                			})
-                			guiTween:Play()
-                			if mainapi.Visible then
-                				clickgui.Visible = mainapi.Visible
-                			else
-                				guiTween.Completed:Connect(function()
-                					clickgui.Visible = mainapi.Visible
-                				end)
-                			end
-							--mainapi:BlurCheck()
-							for _, mobileButton in mainapi.Modules do
-								if mobileButton.Bind.Button then
-									mobileButton.Bind.Button.Visible = false
-								end
+		local optionbutton: any;
+		if inputService.TouchEnabled then
+			optionbutton = Instance.new("TextButton", modulebutton);
+			optionbutton.Size = UDim2.fromScale(0.09, 0.09);
+			optionbutton.Position = UDim2.fromScale(0.85, 0.15);
+			optionbutton.BackgroundColor3 = Color3.fromRGB(36, 36, 43);
+			optionbutton.BackgroundTransparency = 1;
+			optionbutton.TextTransparency = 1;
+			optionbutton.Text = "Press";
+			optionbutton.TextSize = 16;
+			optionbutton.TextColor3 = color.Dark(uipallet.Text, 0.5);
+			optionbutton.FontFace = uipallet.Font;
+			optionbutton.SizeConstraint = "RelativeXX";
+			optionbutton.AutoButtonColor = false;
+			optionbutton.Visible = false;
+			addCorner(optionbutton, UDim.new(0, 8));
+
+			local holdConnection
+			modulebutton.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+					HoldStartTime = os.clock()
+					holdConnection = runService.Heartbeat:Connect(function()
+						if HoldStartTime and os.clock() - HoldStartTime >= 2 then
+							optionbutton.Visible = true
+							optionbutton.BackgroundTransparency = 1
+							optionbutton.TextTransparency = 1
+							local tweenInfo: any = TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							local goals: any = {
+								BackgroundTransparency = 0.3,
+								TextTransparency = 0
+							}
+							tweenService:Create(optionbutton, tweenInfo, goals):Play()
+							HoldStartTime = nil
+							if holdConnection then
+								holdConnection:Disconnect()
 							end
-							touchconnection:Disconnect()
 						end
 					end)
 				end
 			end)
-			modulebutton.MouseButton1Up:Connect(function()
-				heldbutton = false
+
+			modulebutton.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+					HoldStartTime = nil
+					if holdConnection then
+						holdConnection:Disconnect()
+					end
+				end
+			end)
+
+			local touchconnection
+			touchconnection = optionbutton.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if moduleapi.Bind.Button then
+							return
+					end
+					if mainapi.ThreadFix then
+						setthreadidentity(8)
+					end
+					local mousePos = input.Position or inputService:GetMouseLocation()
+					createMobileButton(moduleapi, Vector2.new(mousePos.X, mousePos.Y))
+					optionbutton.Visible = false
+					if guiTween then
+						guiTween:Cancel()
+					end
+					mainapi.Visible = not mainapi.Visible
+					guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+						Scale = mainapi.Visible and 1 or 0
+					})
+					guiTween:Play()
+					if mainapi.Visible then
+						clickgui.Visible = mainapi.Visible
+					else
+						guiTween.Completed:Connect(function()
+							clickgui.Visible = mainapi.Visible
+						end)
+					end
+					for _, mobileButton in mainapi.Modules do
+						if mobileButton.Bind.Button then
+							mobileButton.Bind.Button.Visible = false
+						end
+					end
+					if touchconnection then
+						touchconnection:Disconnect()
+					end
+				end
+			end)
+
+			optionbutton.MouseButton1Click:Connect(function()
+				modulechildren.Visible = not modulechildren.Visible
+				local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+				tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+					Size = UDim2.fromOffset(566, height)
+				})
 			end)
 		end
-
 
 		moduleapi.Object = modulebutton
 		mainapi.Modules[modulesettings.Name] = moduleapi

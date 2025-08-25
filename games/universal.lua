@@ -7461,4 +7461,179 @@ run(function()
 		end
 	})
 end)
-	
+
+run(function()
+        local Shaders: table = {}
+        local collection: (tags: {string} | string?, module: {Clean: (self: any) -> void}?, customadd: ((objs: {any}, v: Instance, tag: string) -> void)?, customremove: ((objs: {any}?, v: Instance?, tag: string?) -> void)?) -> ({any}, (self: any) -> void) = function(tags, module, customadd, customremove)
+                local objs: {any} = {}
+                local tagList: {string} | string = typeof(tags) == "string" and {tags} or tags
+                for _, tag in tagList do
+                        for _, v in collectionService:GetTagged(tag) do
+                                if customadd then
+                                        customadd(objs, v, tag)
+                                else
+                                        table.insert(objs, v)
+                                end
+                        end
+                        collectionService:GetInstanceAddedSignal(tag):Connect(function(v)
+                                if customadd then
+                                        customadd(objs, v, tag)
+                                else
+                                        table.insert(objs, v)
+                                end
+                        end)
+                        collectionService:GetInstanceRemovedSignal(tag):Connect(function(v)
+                                if customremove then
+                                        customremove(objs, v, tag)
+                                else
+                                        for i, obj in next, objs do
+                                                if obj == v then
+                                                        table.remove(objs, i)
+                                                        break
+                                                end
+                                        end
+                                end
+                        end)
+                end
+
+                local cleanFunc: (self: any) -> void = function(self)
+                        table.clear(objs)
+                end
+                if module then
+                        module:Clean(cleanFunc)
+                end
+                return objs, cleanFunc
+        end
+        local CreateCloud: () -> Clouds = function()
+                local existingCloud: Instance? = workspace.Terrain:FindFirstChild("MadeCloud")
+                if existingCloud then
+                        existingCloud:Destroy()
+                end
+                local Cloud: Clouds = Instance.new("Clouds", workspace.Terrain)
+                Cloud.Name = "MadeCloud"
+                Cloud.Enabled = true
+                Cloud.Density = 3.2
+                Cloud.Cover = 0.65
+                Cloud.Color = Color3.new(0.9, 0.9, 0.9)
+                return Cloud
+        end
+        local cloudmodes: (CurrentCloud: Clouds) -> nil = function(CurrentCloud)
+                local weatherStates: { [string]: {density: number, cover: number} } = {
+                        clear = { density = 3.2, cover = 0.65 },
+                        cloudy = { density = 3.2, cover = 0.65 },
+                        overcast = { density = 5.2, cover = 0.85 }
+                }
+                local TransitionWeather: (state: {density: number, cover: number}) -> nil = function(state)
+                        local tweenInfo: TweenInfo = TweenInfo.new(10)
+                        local cloudGoal: {Density: number, Cover: number} = { Density = state.density, Cover = state.cover }
+                        local cloudTween: Tween = tweenService:Create(CurrentCloud, tweenInfo, cloudGoal)
+                        cloudTween:Play()
+                end
+                while true do
+                        local waitTime: number = math.random(15, 20)
+                        wait(waitTime)
+                        local rand: number = math.random(1, 100)
+                        if rand <= 40 then
+                                TransitionWeather(weatherStates.clear)
+                        elseif rand <= 70 then
+                                TransitionWeather(weatherStates.cloudy)
+                        else
+                                TransitionWeather(weatherStates.overcast)
+                        end
+                end
+        end
+        local store: { [string]: {any} } = {}
+        store.blocks, _ = collection("block", nil)
+        local water: () -> nil = function()
+                if lplr and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp: BasePart = lplr.Character.HumanoidRootPart
+                        local pos: Vector3 = hrp.Position
+                        local terrain: Terrain = workspace.Terrain
+                        local waterpos: number = 0
+                        if waterpos == 0 then
+                                local lowestypos: number = 99999
+                                for _, block in next, store.blocks do
+                                        local newray: RaycastResult? = workspace:Raycast(block.Position + Vector3.new(0, 800, 0), Vector3.new(0, -1000, 0))
+                                        if newray and newray.Position.Y <= lowestypos then
+                                                lowestypos = newray.Position.Y
+                                        end
+                                end
+                                waterpos = lowestypos - 8
+                        end
+                        terrain:FillBlock(
+                                CFrame.new(pos.X, waterpos, pos.Z),
+                                Vector3.new(5000, 0.01, 5000),
+                                Enum.Material.Water
+                        )
+                        terrain.WaterColor = Color3.fromRGB(0, 50, 70)
+                        terrain.WaterReflectance = 0.7
+                        terrain.WaterTransparency = 0.25
+                        terrain.WaterWaveSize = 0.13
+                        terrain.WaterWaveSpeed = 8
+                        local humanoid: Humanoid? = lplr.Character:FindFirstChildOfClass("Humanoid")
+                        if humanoid then
+                                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+                        end
+                end
+        end
+        lplr.CharacterAdded:Connect(function(character: Model)
+                local humanoid: Humanoid = character:WaitForChild("Humanoid")
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+        end)
+        Shaders = rust.Categories.Utility:CreateModule({
+                ["Name"] = "Shaders",
+                ["Function"] = function(callback: boolean): void
+                        if callback then
+                                lightingService.Ambient = Color3.fromRGB(55, 55, 55)
+                                lightingService.Brightness = 2.5
+                                lightingService.ColorShift_Bottom = Color3.fromRGB(150, 100, 170)
+                                lightingService.ColorShift_Top = Color3.fromRGB(140, 120, 210)
+                                lightingService.EnvironmentDiffuseScale = 0.9
+                                lightingService.EnvironmentSpecularScale = 0.9
+                                lightingService.GlobalShadows = true
+                                lightingService.OutdoorAmbient = Color3.fromRGB(55, 55, 55)
+                                lightingService.ShadowSoftness = 0.15
+                                lightingService.Technology = Enum.Technology.ShadowMap
+                                lightingService.ClockTime = 17.6
+                                local Atmosphere: Atmosphere = Instance.new("Atmosphere", lightingService)
+                                Atmosphere.Density = 0.35
+                                Atmosphere.Offset = 0.3
+                                Atmosphere.Color = Color3.fromRGB(185, 185, 185)
+                                Atmosphere.Decay = Color3.fromRGB(95, 102, 115)
+                                Atmosphere.Glare = 0
+                                Atmosphere.Haze = 0
+                                local Sky: Sky = Instance.new("Sky", lightingService)
+                                Sky.MoonAngularSize = 0
+                                Sky.MoonTextureId = ""
+                                Sky.SkyboxBk = "rbxassetid://158422743"
+                                Sky.SkyboxDn = "rbxassetid://158422584"
+                                Sky.SkyboxFt = "rbxassetid://158423013"
+                                Sky.SkyboxLf = "rbxassetid://158423239"
+                                Sky.SkyboxRt = "rbxassetid://158422849"
+                                Sky.SkyboxUp = "rbxassetid://158422277"
+                                Sky.StarCount = 2800
+                                Sky.SunAngularSize = 2
+                                Sky.SunTextureId = ""
+                                local Bloom: BloomEffect = Instance.new("BloomEffect", lightingService)
+                                Bloom.Enabled = true
+                                Bloom.Intensity = 0.4
+                                Bloom.Size = 22
+                                Bloom.Threshold = 2.2
+                                local DepthOfField: DepthOfFieldEffect = Instance.new("DepthOfFieldEffect", lightingService)
+                                DepthOfField.Enabled = false
+                                local CurrentCloud: Clouds = CreateCloud()
+                                coroutine.wrap(cloudmodes)(CurrentCloud)
+                                water()
+								local cloudsFolder: Folder? = workspace:FindFirstChild("Clouds");
+								if cloudsFolder then
+								        for _, v: Instance in next, cloudsFolder:GetChildren() do
+								                if v:IsA("Part") then
+								                        v.Transparency = 1;
+								                end;
+								        end;
+								end;
+                        end;
+                end,
+                ["Tooltip"] = "Shaders for game"
+        })
+end)

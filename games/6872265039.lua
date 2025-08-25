@@ -61,26 +61,25 @@ for _, v in rust.Modules do
 end
 
 run(function()
-        local AutoJade: {} = {}
-        local old: any
+        local AutoJade = {}
         AutoJade = rust.Categories.Utility:CreateModule({
                 ["Name"] = "AutoJade",
-                ["Function"] = function(callback: boolean): void
+                ["Function"] = function(callback)
                         if callback then
                                 task.spawn(function()
                                         while task.wait() do
-                                                local kit: string? = lplr:GetAttribute("PlayingAsKits");
+                                                local kit = lplr:GetAttribute("PlayingAsKits")
                                                 if kit ~= "jade" then
-                                                        local args: { [number]: { kit: string } } = {
+                                                        local args = {
                                                                 { kit = "jade" }
                                                         }
-                                                        replicatedStorage:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("BedwarsActivateKit"):InvokeServer(unpack(args))
-                                                end;
-                                        end;
-                                end);
+                                                        replicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.BedwarsActivateKit:InvokeServer(unpack(args))
+                                                end
+                                        end
+                                end)
                         end
                 end,
-                ["Tooltip"] = "Sets your sprinting to true."
+                ["Tooltip"] = "auto equips jade kit for you."
         })
 end)
 

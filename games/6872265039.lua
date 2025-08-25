@@ -61,6 +61,30 @@ for _, v in rust.Modules do
 end
 
 run(function()
+        local AutoJade: {} = {}
+        local old: any
+        AutoJade = rust.Categories.Utility:CreateModule({
+                ["Name"] = "AutoJade",
+                ["Function"] = function(callback: boolean): void
+                        if callback then
+                                task.spawn(function()
+                                        while task.wait() do
+                                                local kit: string? = lplr:GetAttribute("PlayingAsKits");
+                                                if kit ~= "jade" then
+                                                        local args: { [number]: { kit: string } } = {
+                                                                { kit = "jade" }
+                                                        }
+                                                        replicatedStorage:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("BedwarsActivateKit"):InvokeServer(unpack(args))
+                                                end;
+                                        end;
+                                end);
+                        end
+                end,
+                ["Tooltip"] = "Sets your sprinting to true."
+        })
+end)
+
+run(function()
 	local Sprint
 	local old
 	

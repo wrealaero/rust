@@ -2012,7 +2012,23 @@ function mainapi:CreateCategory(categorysettings)
 					end
 				end
 			end)
-
+			modulebutton.TouchTap:Connect(function(touchPositions)
+				local currentTime = os.clock()
+				if lastTapTime and (currentTime - lastTapTime) < 1 then
+					tapCount = tapCount + 1
+					if tapCount == 2 then
+						modulechildren.Visible = not modulechildren.Visible
+						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+							Size = UDim2.fromOffset(566, height)
+						})
+						tapCount = 0
+					end
+				else
+					tapCount = 1
+				end
+				lastTapTime = currentTime
+			end)					
 			optionbutton.MouseButton1Click:Connect(function()
 				modulechildren.Visible = not modulechildren.Visible
 				local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76

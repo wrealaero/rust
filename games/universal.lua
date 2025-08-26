@@ -7552,7 +7552,7 @@ run(function()
                         local waterpos: number = 0
 						local depth: number
 						if game.PlaceId == 6872265039 then
-						    	depth = 20;
+						    	depth = 35;
 						else
 						    	depth = 8;
 						end;

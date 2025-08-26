@@ -7520,7 +7520,7 @@ run(function()
         local cloudmodes: (CurrentCloud: Clouds) -> nil = function(CurrentCloud)
                 local weatherStates: { [string]: {density: number, cover: number} } = {
                         clear = { density = 3.2, cover = 0.65 },
-                        cloudy = { density = 3.2, cover = 0.65 },
+                        cloudy = { density = 4.2, cover = 0.75 },
                         overcast = { density = 5.2, cover = 0.85 }
                 }
                 local TransitionWeather: (state: {density: number, cover: number}) -> nil = function(state)
@@ -7554,7 +7554,7 @@ run(function()
 						if game.PlaceId == 6872265039 then
 						    	depth = 35;
 						else
-						    	depth = 8;
+						    	depth = 2;
 						end;
                         if waterpos == 0 then
                                 local lowestypos: number = 99999

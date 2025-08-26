@@ -7568,7 +7568,7 @@ run(function()
                         end
                         terrain:FillBlock(
                                 CFrame.new(pos.X, waterpos, pos.Z),
-                                Vector3.new(5000, 0.01, 5000),
+                                Vector3.new(5000, 0.0001, 5000),
                                 Enum.Material.Water
                         )
                         terrain.WaterColor = Color3.fromRGB(0, 50, 70)

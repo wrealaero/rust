@@ -7550,6 +7550,12 @@ run(function()
                         local pos: Vector3 = hrp.Position
                         local terrain: Terrain = workspace.Terrain
                         local waterpos: number = 0
+						local depth: number
+						if game.PlaceId == 6872265039 then
+						    	depth = 20;
+						else
+						    	depth = 8;
+						end;
                         if waterpos == 0 then
                                 local lowestypos: number = 99999
                                 for _, block in next, store.blocks do
@@ -7558,7 +7564,7 @@ run(function()
                                                 lowestypos = newray.Position.Y
                                         end
                                 end
-                                waterpos = lowestypos - 8
+                                waterpos = lowestypos - depth
                         end
                         terrain:FillBlock(
                                 CFrame.new(pos.X, waterpos, pos.Z),

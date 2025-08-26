@@ -144,12 +144,36 @@ local isfile = isfile or function(file)
 end
 
 local getfontsize = function(text, size, font)
-	fontsize.Text = text
-	fontsize.Size = size
-	if typeof(font) == 'Font' then
-		fontsize.Font = font
-	end
-	return textService:GetTextBoundsAsync(fontsize)
+    local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown"
+    if execName ~= "Krnl" then --( (not execName) == "Delta" ) or--
+        fontsize.Text = text
+        fontsize.Size = size
+        if typeof(font) == 'Font' then
+            fontsize.Font = font
+        end
+    else
+        fontsize.Text = text
+        fontsize.Size = size
+        if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
+            if font == Enum.Font.Arial then
+                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+            else
+                fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+            end
+        elseif typeof(font) == "Font" then
+            if not font.Family or font.Family == "" then
+                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+            else
+                fontsize.Font = font
+            end
+        else
+            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+        end
+        if not fontsize.Font or not fontsize.Font.Family or fontsize.Font.Family == "" then
+            fontsize.Font = Font.fromEnum(Enum.Font.Gotham)
+        end
+    end 
+    return textService:GetTextBoundsAsync(fontsize)
 end
 
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)

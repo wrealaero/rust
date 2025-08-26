@@ -1,4 +1,5 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -1729,10 +1730,12 @@ end)
 addMaid(mainapi)
 
 function mainapi:CreateGUI()
-	return self.Categories.Minigames:CreateModule({
-		Name = 'Settings',
-		Tooltip = 'Miscellaneous options for the utility.'
-	})
+    return self:CreateCategory({
+        Name = 'Main',
+        RealName = 'Settings',
+        RiseIcon = 's',
+        Font = 1
+    })
 end
 
 function mainapi:CreateCategory(categorysettings)
@@ -3024,6 +3027,7 @@ mainapi:Clean(friends.ColorUpdate)
 mainapi.Legit = mainapi:CreateLegit()
 mainapi.Categories.Main = mainapi:CreateGUI()
 
+
 --[[
 	Targets
 ]]
@@ -3039,7 +3043,7 @@ targets = mainapi:CreateCategoryList({
 targets.Update = Instance.new('BindableEvent')
 mainapi:Clean(targets.Update)
 
-mainapi.Categories.Main:CreateToggle({
+mainapi.Categories.Main:CreateModule({
 	Name = 'Teams by server',
 	Tooltip = 'Ignore players on your team designated by the server',
 	Default = true,
@@ -3049,7 +3053,7 @@ mainapi.Categories.Main:CreateToggle({
 		end
 	end
 })
-mainapi.Categories.Main:CreateToggle({
+mainapi.Categories.Main:CreateModule({
 	Name = 'Use team color',
 	Tooltip = 'Uses the TeamColor property on players for render modules',
 	Default = true,
@@ -3065,12 +3069,12 @@ mainapi.Categories.Main:CreateToggle({
 	GUI Settings
 ]]
 
-mainapi.Categories.Main.Options['GUI bind indicator'] = mainapi.Categories.Main:CreateToggle({
+mainapi.Bindings = mainapi.Categories.Main:CreateModule({
 	Name = 'GUI bind indicator',
 	Default = true,
 	Tooltip = "Displays a message indicating your GUI upon injecting.\nI.E. 'Press RSHIFT to open GUI'"
 })
-mainapi.Notifications = mainapi.Categories.Main:CreateToggle({
+mainapi.Notifications = mainapi.Categories.Main:CreateModule({
 	Name = 'Notifications',
 	Tooltip = 'Shows notifications',
 	Default = true
@@ -3079,7 +3083,7 @@ local scaleslider = {
 	Object = {},
 	Value = 1
 }
-mainapi.Scale = mainapi.Categories.Main:CreateToggle({
+mainapi.Scale = mainapi.Categories.Main:CreateModule({
 	Name = 'Auto rescale',
 	Default = true,
 	Function = function(callback)
@@ -3091,7 +3095,7 @@ mainapi.Scale = mainapi.Categories.Main:CreateToggle({
 		end
 	end
 })
-scaleslider = mainapi.Categories.Main:CreateSlider({
+scaleslider = mainapi.Scale:CreateSlider({
 	Name = 'Scale',
 	Min = 0.1,
 	Max = 2,
@@ -3105,6 +3109,7 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 	Darker = true,
 	Visible = false
 })
+--[[
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
 	List = {'rise', 'new', 'old', 'sigma'},
@@ -3115,7 +3120,7 @@ mainapi.Categories.Main:CreateDropdown({
 		    loadfile("rust/init.lua")()
 		end
 	end
-})
+})]]--
 local colors = {
 	Dark = {
 		Main = {26, 25, 26},
@@ -3158,7 +3163,13 @@ local list = {}
 for i, v in pairs(colors) do
 	table.insert(list, i)
 end
-mainapi.Categories.Main:CreateDropdown({
+
+mainapi.Customize = mainapi.Categories.Main:CreateModule({
+	Name = 'Customize',
+	Default = true
+})
+
+mainapi.Customize:CreateDropdown({
 	Name = "GUI Color",
 	List = list,
 	Default = 'Dark',
@@ -3171,7 +3182,7 @@ mainapi.Categories.Main:CreateDropdown({
 		end
 	end
 })
-mainapi.RainbowSpeed = mainapi.Categories.Main:CreateSlider({
+mainapi.RainbowSpeed = mainapi.Customize:CreateSlider({
 	Name = 'Color speed',
 	Min = 0.1,
 	Max = 10,
@@ -3179,7 +3190,7 @@ mainapi.RainbowSpeed = mainapi.Categories.Main:CreateSlider({
 	Default = 1,
 	Tooltip = 'Adjusts the speed of color values'
 })
-mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
+mainapi.RainbowUpdateSpeed = mainapi.Customize:CreateSlider({
 	Name = 'Color update rate',
 	Min = 1,
 	Max = 144,
@@ -3187,19 +3198,20 @@ mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
 	Tooltip = 'Adjusts the update rate of color values',
 	Suffix = 'hz'
 })
-mainapi.Categories.Main:CreateButton({
+--[[
+mainapi.Categories.Main:CreateModule({
 	Name = 'Reinject',
 	Function = function()
 		shared.rustreload = true
 		loadfile("rust/init.lua")()
 	end
 })
-mainapi.Categories.Main:CreateButton({
+mainapi.Categories.Main:CreateModule({
 	Name = 'Uninject',
 	Function = function()
 		mainapi:Uninject()
 	end
-})
+})]]--
 
 --[[
 	Interface

@@ -2787,12 +2787,12 @@ end
 mainapi.gui = gui
 scaledgui = Instance.new('Frame')
 scaledgui.Name = 'ScaledGui'
-scaledgui.Size = UDim2.fromScale(1, 1)
+scaledgui.Size = UDim2.fromScale(0.9, 0.9)
 scaledgui.BackgroundTransparency = 1
 scaledgui.Parent = gui
 clickgui = Instance.new('Frame')
 clickgui.Name = 'ClickGui'
-clickgui.Size = UDim2.fromScale(1, 1)
+clickgui.Size = UDim2.fromScale(0.9, 0.9)
 clickgui.BackgroundTransparency = 1
 clickgui.Visible = false
 clickgui.Parent = scaledgui

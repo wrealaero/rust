@@ -2949,10 +2949,11 @@ mainapi:CreateCategory({
 	RiseIcon = 'f'
 })
 mainapi:CreateCategory({
-	Name = 'Settings',
-	RealName = 'Settings',
-	RiseIcon = 'f'
+    Name = 'Settings',
+    RealName = 'Settings',
+    RiseIcon = 'rbxassetid://109334495331951'
 })
+
 mainapi.Categories.Minigames = mainapi.Categories.Utility
 mainapi.Categories.Inventory = mainapi.Categories.Utility
 

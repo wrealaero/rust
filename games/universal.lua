@@ -7632,12 +7632,13 @@ run(function()
                                 water()
 								local cloudsFolder: Folder? = workspace:FindFirstChild("Clouds");
 								if cloudsFolder then
-								        for _, v: Instance in next, cloudsFolder:GetChildren() do
-								                if v:IsA("Part") then
-								                        v.Transparency = 1;
-								                end;
-								        end;
+								            cloudsFolder:Destroy()
 								end;
+								workspace.ChildAdded:Connect(function(child)
+									    if child.Name == "Clouds" and child:IsA("Folder") then
+									        	child:Destroy()
+									    end;
+								end);
                         end;
                 end,
                 ["Tooltip"] = "Shaders for game"

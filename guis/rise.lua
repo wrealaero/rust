@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -1728,7 +1729,7 @@ end)
 addMaid(mainapi)
 
 function mainapi:CreateGUI()
-	return self.Categories.Minigames:CreateModule({
+	return self.Categories.Settings:CreateModule({
 		Name = 'Settings',
 		Tooltip = 'Miscellaneous options for the utility.'
 	})
@@ -2945,6 +2946,11 @@ mainapi:CreateCategory({
 mainapi:CreateCategory({
 	Name = 'Ghost',
 	RealName = 'Legit',
+	RiseIcon = 'f'
+})
+mainapi:CreateCategory({
+	Name = 'Settings',
+	RealName = 'Settings',
 	RiseIcon = 'f'
 })
 mainapi.Categories.Minigames = mainapi.Categories.Utility

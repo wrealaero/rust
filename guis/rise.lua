@@ -2363,7 +2363,7 @@ function mainapi:CreateOverlay(categorysettings)
 	categoryapi = {
 		Type = 'Overlay',
 		Expanded = false,
-		Button = self.Categories.Render:CreateModule({
+		Button = self.Categories.Settings:CreateModule({
 			Name = categorysettings.Name,
 			Function = function(callback)
 				customchildren.Visible = callback

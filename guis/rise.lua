@@ -1,4 +1,5 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -2951,7 +2952,7 @@ mainapi:CreateCategory({
 mainapi:CreateCategory({
     Name = 'Settings',
     RealName = 'Settings',
-    RiseIcon = 'rbxassetid://109334495331951'
+    RiseIcon = 'e'
 })
 
 mainapi.Categories.Minigames = mainapi.Categories.Utility

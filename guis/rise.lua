@@ -3413,6 +3413,15 @@ local targetinfodisplay = targetinfoobj:CreateToggle({
 	Default = true
 })
 
+local targetinfodragging = targetinfoobj:CreateToggle({
+    Name = 'Allow Drag',
+    Default = false
+})
+
+targetinfodragging.Function = function(val)
+    targetinfoobj.NoDrag = not val;
+end;
+
 local lasthealth = 0
 local lastmaxhealth = 0
 local lastvisible

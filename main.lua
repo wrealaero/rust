@@ -72,6 +72,14 @@ end
 local function finishLoading()
 		rust.Init = nil
 		rust:Load()
+		
+		local inputService = cloneref(game:GetService('UserInputService'))
+		if inputService.TouchEnabled and rust.Scale then
+			if not rust.Scale.Enabled then
+				rust.Scale:Toggle()
+			end
+		end
+		
 		task.spawn(function()
 			repeat
 				rust:Save()

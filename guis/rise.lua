@@ -1,4 +1,5 @@
 --This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
+--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.
 local mainapi = {
 	Categories = {},
 	GUIColor = {
@@ -3087,7 +3088,7 @@ local scaleslider = {
 }
 mainapi.Scale = mainapi.Categories.Main:CreateToggle({
 	Name = 'Auto rescale',
-	Default = true,
+	Default = fpsmode,
 	Function = function(callback)
 		scaleslider.Object.Visible = not callback
 		if callback then
@@ -3107,7 +3108,7 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 			scale.Scale = val
 		end
 	end,
-	Default = 1,
+	Default = 0.9,
 	Darker = true,
 	Visible = false
 })

@@ -7565,6 +7565,7 @@ run(function()
                                         end
                                 end
                                 waterpos = lowestypos - depth
+								shared.WaterLevel = waterpos
                         end
                         terrain:FillBlock(
                                 CFrame.new(pos.X, waterpos, pos.Z),

@@ -60,8 +60,8 @@ local tween = {
 }
 local uipallet = {
 	Main = Color3.fromRGB(23, 26, 33),
-	MainColor = Color3.fromRGB(12, 163, 232),
-	SecondaryColor = Color3.fromRGB(12, 232, 199),
+	MainColor = Color3.fromRGB(66, 134, 244),
+	SecondaryColor = Color3.fromRGB(55, 59, 68),
 	Text = Color3.new(1, 1, 1),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear),
 	Themes = {

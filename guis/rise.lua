@@ -1924,18 +1924,22 @@ function mainapi:CreateCategory(categorysettings)
 			})
 		end)
 		modulebutton.MouseButton1Down:Connect(function()
-			HoldStartTime = os.clock()
-			repeat task.wait() until not HoldStartTime or os.clock() - HoldStartTime >= 2
-			if HoldStartTime then
-				if inputService.TouchEnabled then
+			if inputService.TouchEnabled then
+				HoldStartTime = tick()
+				repeat task.wait() until not HoldStartTime or tick() - HoldStartTime >= 2
+				if HoldStartTime then
 					if moduleapi.Bind.Button then
 						moduleapi.Bind.Button:Destroy()
 						moduleapi.Bind = {}
 					else
 						local mousePos = inputService:GetMouseLocation()
-						moduleapi:SetBind({Mobile = true, X = mousePos.X, Y = mousePos.Y}, true)
+						createMobileButton(moduleapi, Vector2.new(mousePos.X, mousePos.Y))
 					end
-				else
+				end
+			else
+				HoldStartTime = tick()
+				repeat task.wait() until not HoldStartTime or tick() - HoldStartTime >= 2
+				if HoldStartTime then
 					if #moduleapi.Bind > 0 then
 						moduleapi:SetBind({}, true)
 					else
@@ -1946,8 +1950,10 @@ function mainapi:CreateCategory(categorysettings)
 			end
 		end)
 		modulebutton.MouseButton1Up:Connect(function()
-			if not mainapi.Binding then
-				moduleapi:Toggle()
+			if HoldStartTime and tick() - HoldStartTime < 2 then
+				if not mainapi.Binding then
+					moduleapi:Toggle()
+				end
 			end
 			HoldStartTime = nil
 		end)
@@ -1957,39 +1963,16 @@ function mainapi:CreateCategory(categorysettings)
 			tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
 				Size = UDim2.fromOffset(566, height)
 			})
-		end)
-
-		if inputService.TouchEnabled then
-			local lastTapTime = 0
-			local tapCount = 0
-			
-			modulebutton.TouchTap:Connect(function(touchPositions)
-				local currentTime = os.clock()
-				if lastTapTime and (currentTime - lastTapTime) < 1 then
-					tapCount = tapCount + 1
-					if tapCount == 2 then
-						modulechildren.Visible = not modulechildren.Visible
-						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(566, height)
-						})
-						tapCount = 0
-					end
-				else
-					tapCount = 1
-					task.wait(1)
-					if tapCount == 1 and not mainapi.Binding then
-						moduleapi:Toggle()
-					end
-				end
-				lastTapTime = currentTime
-			end)
-		end
-
+			if modulechildren.Visible then
+				mainapi:UpdateTextGUI()
+			end
+			mainapi:UpdateTextGUI()
 
 		moduleapi.Object = modulebutton
 		mainapi.Modules[modulesettings.Name] = moduleapi
 
+{{ ... }}
+{{ ... }}
 		local sorting = {}
 		for _, v in mainapi.Modules do
 			sorting[v.Category] = sorting[v.Category] or {}

@@ -1949,41 +1949,32 @@ function mainapi:CreateCategory(categorysettings)
 			})
 		end)
 
-		local optionbutton: any;
 		if inputService.TouchEnabled then
-			optionbutton = Instance.new("TextButton", modulebutton);
-			optionbutton.Size = UDim2.fromScale(0.09, 0.09);
-			optionbutton.Position = UDim2.fromScale(0.85, 0.15);
-			optionbutton.BackgroundColor3 = Color3.fromRGB(36, 36, 43);
-			optionbutton.BackgroundTransparency = 1;
-			optionbutton.TextTransparency = 1;
-			optionbutton.Text = "Press";
-			optionbutton.TextSize = 16;
-			optionbutton.TextColor3 = color.Dark(uipallet.Text, 0.5);
-			optionbutton.FontFace = uipallet.Font;
-			optionbutton.SizeConstraint = "RelativeXX";
-			optionbutton.AutoButtonColor = false;
-			optionbutton.Visible = false;
-			addCorner(optionbutton, UDim.new(0, 8));
-
 			local holdConnection
+			local touchStartTime
+			local hasHeld = false
+			
 			modulebutton.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-					HoldStartTime = os.clock()
+					touchStartTime = os.clock()
+					hasHeld = false
 					holdConnection = runService.Heartbeat:Connect(function()
-						if HoldStartTime and os.clock() - HoldStartTime >= 2 then
-							optionbutton.Visible = true
-							optionbutton.BackgroundTransparency = 1
-							optionbutton.TextTransparency = 1
-							local tweenInfo: any = TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-							local goals: any = {
-								BackgroundTransparency = 0.3,
-								TextTransparency = 0
-							}
-							tweenService:Create(optionbutton, tweenInfo, goals):Play()
-							HoldStartTime = nil
+						if touchStartTime and os.clock() - touchStartTime >= 2 then
+							hasHeld = true
+							if mainapi.ThreadFix then
+								setthreadidentity(8)
+							end
+							if moduleapi.Bind.Button then
+								moduleapi.Bind.Button:Destroy()
+								moduleapi.Bind = {}
+							else
+								local mousePos = input.Position or inputService:GetMouseLocation()
+								createMobileButton(moduleapi, Vector2.new(mousePos.X, mousePos.Y))
+							end
+							touchStartTime = nil
 							if holdConnection then
 								holdConnection:Disconnect()
+								holdConnection = nil
 							end
 						end
 					end)
@@ -1992,73 +1983,40 @@ function mainapi:CreateCategory(categorysettings)
 
 			modulebutton.InputEnded:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-					HoldStartTime = nil
+					touchStartTime = nil
 					if holdConnection then
 						holdConnection:Disconnect()
+						holdConnection = nil
 					end
 				end
 			end)
-
-			local touchconnection
-			touchconnection = optionbutton.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-					if moduleapi.Bind.Button then
-							return
-					end
-					if mainapi.ThreadFix then
-						setthreadidentity(8)
-					end
-					local mousePos = input.Position or inputService:GetMouseLocation()
-					createMobileButton(moduleapi, Vector2.new(mousePos.X, mousePos.Y))
-					optionbutton.Visible = false
-					if guiTween then
-						guiTween:Cancel()
-					end
-					mainapi.Visible = not mainapi.Visible
-					guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-						Scale = mainapi.Visible and 1 or 0
-					})
-					guiTween:Play()
-					if mainapi.Visible then
-						clickgui.Visible = mainapi.Visible
+			
+			modulebutton.TouchTap:Connect(function(touchPositions)
+				if not hasHeld then
+					local currentTime = os.clock()
+					if lastTapTime and (currentTime - lastTapTime) < 0.5 then
+						tapCount = tapCount + 1
+						if tapCount == 2 then
+							modulechildren.Visible = not modulechildren.Visible
+							local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+							tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+								Size = UDim2.fromOffset(566, height)
+							})
+							tapCount = 0
+							lastTapTime = 0
+						end
 					else
-						guiTween.Completed:Connect(function()
-							clickgui.Visible = mainapi.Visible
+						tapCount = 1
+						lastTapTime = currentTime
+						task.spawn(function()
+							task.wait(0.5)
+							if tapCount == 1 and lastTapTime == currentTime then
+								moduleapi:Toggle()
+								tapCount = 0
+							end
 						end)
 					end
-					for _, mobileButton in mainapi.Modules do
-						if mobileButton.Bind.Button then
-							mobileButton.Bind.Button.Visible = false
-						end
-					end
-					if touchconnection then
-						touchconnection:Disconnect()
-					end
 				end
-			end)
-			modulebutton.TouchTap:Connect(function(touchPositions)
-				local currentTime = os.clock()
-				if lastTapTime and (currentTime - lastTapTime) < 1 then
-					tapCount = tapCount + 1
-					if tapCount == 2 then
-						modulechildren.Visible = not modulechildren.Visible
-						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(566, height)
-						})
-						tapCount = 0
-					end
-				else
-					tapCount = 1
-				end
-				lastTapTime = currentTime
-			end)					
-			optionbutton.MouseButton1Click:Connect(function()
-				modulechildren.Visible = not modulechildren.Visible
-				local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-				tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-					Size = UDim2.fromOffset(566, height)
-				})
 			end)
 		end
 

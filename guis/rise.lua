@@ -256,13 +256,16 @@ end
 
 local function createMobileButton(buttonapi, position)
 	if not inputService.TouchEnabled then return end
-	local heldbutton = false
+	if buttonapi.Bind and buttonapi.Bind.Button and buttonapi.Bind.Button.Parent then 
+		return 
+	end
+	
 	local button = Instance.new('TextButton')
 	button.Size = UDim2.fromOffset(40, 40)
 	button.Position = UDim2.fromOffset(position.X, position.Y)
 	button.AnchorPoint = Vector2.new(0.5, 0.5)
-	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-	button.BackgroundTransparency = 0.5
+	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new(0.2, 0.2, 0.2)
+	button.BackgroundTransparency = 0.3
 	button.Text = buttonapi.Name
 	button.TextColor3 = Color3.new(1, 1, 1)
 	button.TextScaled = true
@@ -273,26 +276,40 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
 	makeDraggable(button)
-	button.MouseButton1Down:Connect(function()
-		heldbutton = true
-		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
-		repeat
-			heldbutton = (inputService:GetMouseLocation() - holdpos).Magnitude < 6
-			task.wait()
-		until (tick() - holdtime) > 1 or not heldbutton
-		if heldbutton then
-			buttonapi.Bind = {}
-			button:Destroy()
+	
+	local holdActive = false
+	button.TouchLongPress:Connect(function(touchPositions, state)
+		if state == Enum.UserInputState.Begin then
+			holdActive = true
+			task.wait(1)
+			if holdActive then
+				buttonapi.Bind = nil
+				button:Destroy()
+			end
+		elseif state == Enum.UserInputState.End then
+			holdActive = false
 		end
 	end)
-	button.MouseButton1Up:Connect(function()
-		heldbutton = false
+	
+	button.TouchTap:Connect(function()
+		if not holdActive then
+			buttonapi:Toggle()
+			button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new(0.2, 0.2, 0.2)
+		end
 	end)
+	
 	button.MouseButton1Click:Connect(function()
 		buttonapi:Toggle()
-		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
+		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new(0.2, 0.2, 0.2)
 	end)
+	
 	buttonapi.Bind = {Button = button}
+	
+	table.insert(buttonapi.Connections, buttonapi.OnEnableChange:Connect(function()
+		if button and button.Parent then
+			button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new(0.2, 0.2, 0.2)
+		end
+	end))
 end
 
 local function createHighlight(size, pos)
@@ -1950,71 +1967,52 @@ function mainapi:CreateCategory(categorysettings)
 		end)
 
 		if inputService.TouchEnabled then
-			local lastTapTime = 0
-			local tapCount = 0
-			local holdStartTime = nil
-			local holdConnection = nil
-			local wasHeld = false
+			local tapStartTime = 0
+			local tapDebounce = false
+			local holdActive = false
+			local holdConnection
 			
-			modulebutton.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.Touch then
-					holdStartTime = os.clock()
-					wasHeld = false
-					holdConnection = runService.Heartbeat:Connect(function()
-						if holdStartTime and os.clock() - holdStartTime >= 2 then
-							wasHeld = true
-							if moduleapi.Bind and moduleapi.Bind.Button then
-								moduleapi.Bind.Button:Destroy()
-								moduleapi.Bind = {}
-							else
-								local touchPos = input.Position and Vector2.new(input.Position.X, input.Position.Y) or inputService:GetMouseLocation()
-								createMobileButton(moduleapi, touchPos)
-							end
-							
-							holdStartTime = nil
-							if holdConnection then
-								holdConnection:Disconnect()
-								holdConnection = nil
-							end
+			modulebutton.TouchLongPress:Connect(function(touchPositions, state)
+				if state == Enum.UserInputState.Begin then
+					holdActive = true
+					local touchPos = touchPositions[1] and Vector2.new(touchPositions[1].X, touchPositions[1].Y) or inputService:GetMouseLocation()
+					
+					task.wait(2)
+					if holdActive then
+						if moduleapi.Bind and moduleapi.Bind.Button and moduleapi.Bind.Button.Parent then
+							moduleapi.Bind.Button:Destroy()
+							moduleapi.Bind = nil
+						else
+							createMobileButton(moduleapi, touchPos)
 						end
-					end)
-				end
-			end)
-
-			modulebutton.InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.Touch then
-					holdStartTime = nil
-					if holdConnection then
-						holdConnection:Disconnect()
-						holdConnection = nil
 					end
+				elseif state == Enum.UserInputState.End then
+					holdActive = false
 				end
 			end)
 			
 			modulebutton.TouchTap:Connect(function(touchPositions)
-				if wasHeld then
-					wasHeld = false
-					return
-				end
-				local currentTime = os.clock()
-				if lastTapTime and (currentTime - lastTapTime) < 1 then
-					tapCount = tapCount + 1
-					if tapCount == 2 then
-						modulechildren.Visible = not modulechildren.Visible
-						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(566, height)
-						})
-						tapCount = 0
-					end
+				if tapDebounce then return end
+				tapDebounce = true
+				
+				local now = tick()
+				if now - tapStartTime < 0.4 then
+					modulechildren.Visible = not modulechildren.Visible
+					local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+					tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+						Size = UDim2.fromOffset(566, height)
+					})
+					tapStartTime = 0
 				else
-					tapCount = 1
-					task.wait(0.5)
-					if tapCount == 1 and not mainapi.Binding then
+					tapStartTime = now
+					task.wait(0.4)
+					if tapStartTime == now then
 						moduleapi:Toggle()
+						tapStartTime = 0
 					end
 				end
-				lastTapTime = currentTime
+				
+				tapDebounce = false
 			end)
 		end
 

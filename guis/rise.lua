@@ -236,6 +236,41 @@ local function checkKeybinds(compare, target, key)
 	return false
 end
 
+local function makeDraggable(obj, window)
+	obj.InputBegan:Connect(function(inputObj)
+		if window and not window.Visible then return end
+		if
+			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
+			and (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window)
+		then
+			local dragPosition = Vector2.new((obj.AbsolutePosition.X + obj.AbsoluteSize.X/2) - inputObj.Position.X, (obj.AbsolutePosition.Y + obj.AbsoluteSize.Y/2) - inputObj.Position.Y + guiService:GetGuiInset().Y) / scale.Scale
+			local changed = inputService.InputChanged:Connect(function(input)
+				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
+					local position = input.Position
+					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+						dragPosition = (dragPosition // 3) * 3
+						position = (position // 3) * 3
+					end
+					obj.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
+				end
+			end)
+
+			local ended
+			ended = inputObj.Changed:Connect(function()
+				if inputObj.UserInputState == Enum.UserInputState.End then
+					if changed then
+						changed:Disconnect()
+					end
+					if ended then
+						ended:Disconnect()
+					end
+				end
+			end)
+		end
+	end)
+end
+
+
 local function createDownloader(text)
 	if mainapi.Loaded ~= true then
 		local downloader = mainapi.Downloader
@@ -276,27 +311,6 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
 	makeDraggable(button)
-	
-	local holdActive = false
-	button.TouchLongPress:Connect(function(touchPositions, state)
-		if state == Enum.UserInputState.Begin then
-			holdActive = true
-			task.wait(1)
-			if holdActive then
-				buttonapi.Bind = nil
-				button:Destroy()
-			end
-		elseif state == Enum.UserInputState.End then
-			holdActive = false
-		end
-	end)
-	
-	button.TouchTap:Connect(function()
-		if not holdActive then
-			buttonapi:Toggle()
-			button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-		end
-	end)
 	
 	button.MouseButton1Click:Connect(function()
 		buttonapi:Toggle()
@@ -385,41 +399,6 @@ local function loadJson(path)
 	end)
 	return suc and type(res) == 'table' and res or nil
 end
-
-local function makeDraggable(obj, window)
-	obj.InputBegan:Connect(function(inputObj)
-		if window and not window.Visible then return end
-		if
-			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-			and (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window)
-		then
-			local dragPosition = Vector2.new((obj.AbsolutePosition.X + obj.AbsoluteSize.X/2) - inputObj.Position.X, (obj.AbsolutePosition.Y + obj.AbsoluteSize.Y/2) - inputObj.Position.Y + guiService:GetGuiInset().Y) / scale.Scale
-			local changed = inputService.InputChanged:Connect(function(input)
-				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-					local position = input.Position
-					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						dragPosition = (dragPosition // 3) * 3
-						position = (position // 3) * 3
-					end
-					obj.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
-				end
-			end)
-
-			local ended
-			ended = inputObj.Changed:Connect(function()
-				if inputObj.UserInputState == Enum.UserInputState.End then
-					if changed then
-						changed:Disconnect()
-					end
-					if ended then
-						ended:Disconnect()
-					end
-				end
-			end)
-		end
-	end)
-end
-
 
 local function randomString()
 	local array = {}

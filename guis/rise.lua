@@ -264,7 +264,7 @@ local function createMobileButton(buttonapi, position)
 	button.Size = UDim2.fromOffset(40, 40)
 	button.Position = UDim2.fromOffset(position.X, position.Y)
 	button.AnchorPoint = Vector2.new(0.5, 0.5)
-	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new(0.2, 0.2, 0.2)
+	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
 	button.BackgroundTransparency = 0.3
 	button.Text = buttonapi.Name
 	button.TextColor3 = Color3.new(1, 1, 1)

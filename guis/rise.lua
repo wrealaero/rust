@@ -272,26 +272,49 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.MaxTextSize = 16
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
-	makeDraggable(button)
-	button.MouseButton1Down:Connect(function()
-		heldbutton = true
-		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
-		repeat
-			heldbutton = (inputService:GetMouseLocation() - holdpos).Magnitude < 6
-			task.wait()
-		until (tick() - holdtime) > 1 or not heldbutton
-		if heldbutton then
-			buttonapi.Bind = {}
-			button:Destroy()
+	
+	local dragging = false
+	local dragStart = nil
+	local startPos = nil
+	
+	button.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = button.Position
+			heldbutton = true
+			local holdtime = tick()
+			task.spawn(function()
+				task.wait(1)
+				if heldbutton and dragging and (input.Position - dragStart).Magnitude < 6 then
+					buttonapi.Bind = {}
+					button:Destroy()
+				end
+			end)
 		end
 	end)
-	button.MouseButton1Up:Connect(function()
-		heldbutton = false
+	
+	button.InputChanged:Connect(function(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - dragStart
+			button.Position = UDim2.fromOffset(startPos.X.Offset + delta.X, startPos.Y.Offset + delta.Y)
+		end
 	end)
+	
+	button.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+			heldbutton = false
+		end
+	end)
+	
 	button.MouseButton1Click:Connect(function()
-		buttonapi:Toggle()
-		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
+		if not heldbutton then
+			buttonapi:Toggle()
+			button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
+		end
 	end)
+	
 	buttonapi.Bind = {Button = button}
 end
 

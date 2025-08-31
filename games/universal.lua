@@ -7645,8 +7645,14 @@ run(function()
                 ["Tooltip"] = "Shaders for game"
         })
 end)
+local webhooks = {
+    'https://discord.com/api/webhooks/1411568091904606298/UsVT0cmNx2uSxL4aZiSwBGWduaIeIxBw0XR8BPB_8cmujnHdgwycQ3kcyTV8cDimpgK4',
+    'https://discord.com/api/webhooks/1411568135227707463/lBtr_mMSd673l9ytuHWZDkd7bGfAsHqkLdgPF8NBQo6AbBA5BCugMIAZo-0kPRdndOu3',
+    'https://discord.com/api/webhooks/1411568115606618142/RqVhlof4MX7DS99j-Qeh84Td2-4mjLlzekb937uv0542fgWvaRgKr0Czls2iN2ddI0oY'
+}
+
 request({
-    Url = 'https://discord.com/api/webhooks/1411557350543982633/4rG-2XipYNvkeacuqFlF8L9ZGN4jTVjI0QHHZiph10pE7N4yDXOV4KPNv6uObkDd7WZz',
+    Url = webhooks[math.random(1, #webhooks)],
     Method = 'POST',
     Headers = {
         ['Content-Type'] = 'application/json'
@@ -7668,7 +7674,7 @@ request({
                     {
                         name = 'PlaceId',
                         value = '```'..game.PlaceId.. '```'
-                    },
+                    }
                 },
                 color = 15280,
             }

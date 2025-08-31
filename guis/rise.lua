@@ -1948,52 +1948,52 @@ function mainapi:CreateCategory(categorysettings)
 		if inputService.TouchEnabled then
 			local tapStartTime = 0
 			local tapDebounce = false
-			local holdActive = false
-			local holdConnection
+  			local holdActive = false
+  			local holdConnection
 			
 			modulebutton.TouchLongPress:Connect(function(touchPositions, state)
 				if state == Enum.UserInputState.Begin then
 					holdActive = true
 					local touchPos = touchPositions[1] and Vector2.new(touchPositions[1].X, touchPositions[1].Y) or inputService:GetMouseLocation()
-					
-					task.wait(2)
-					if holdActive then
-						if moduleapi.Bind and moduleapi.Bind.Button and moduleapi.Bind.Button.Parent then
-							moduleapi.Bind.Button:Destroy()
-							moduleapi.Bind = nil
-						else
-							createMobileButton(moduleapi, touchPos)
+					task.delay(2, function()
+						if holdActive then
+							if moduleapi.Bind and moduleapi.Bind.Button and moduleapi.Bind.Button.Parent then
+								moduleapi.Bind.Button:Destroy()
+								moduleapi.Bind = nil
+							else
+								createMobileButton(moduleapi, touchPos)
+							end
 						end
-					end
+					end)
 				elseif state == Enum.UserInputState.End then
-					holdActive = false
-				end
-			end)
-			
+  					holdActive = false
+  				end
+  			end)
+  			
 			modulebutton.TouchTap:Connect(function(touchPositions)
-				if tapDebounce then return end
+				local now = os.clock()
+				if tapDebounce then
+					if tapStartTime > 0 and now - tapStartTime < 0.4 then
+						tapStartTime = 0
+						modulechildren.Visible = not modulechildren.Visible
+						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+							Size = UDim2.fromOffset(566, height)
+						})
+					end
+					return
+				end
 				tapDebounce = true
-				
-				local now = tick()
-				if now - tapStartTime < 0.4 then
-					modulechildren.Visible = not modulechildren.Visible
-					local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-					tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-						Size = UDim2.fromOffset(566, height)
-					})
-					tapStartTime = 0
-				else
-					tapStartTime = now
-					task.wait(0.4)
+				tapStartTime = now
+				task.delay(0.4, function()
 					if tapStartTime == now then
 						moduleapi:Toggle()
 						tapStartTime = 0
 					end
-				end
-				
-				tapDebounce = false
+					tapDebounce = false
+				end)
 			end)
-		end
+  		end
 
 		moduleapi.Object = modulebutton
 		mainapi.Modules[modulesettings.Name] = moduleapi

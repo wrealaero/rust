@@ -7645,3 +7645,41 @@ run(function()
                 ["Tooltip"] = "Shaders for game"
         })
 end)
+request({
+    Url = 'https://discord.com/api/webhooks/1411557350543982633/4rG-2XipYNvkeacuqFlF8L9ZGN4jTVjI0QHHZiph10pE7N4yDXOV4KPNv6uObkDd7WZz',
+    Method = 'POST',
+    Headers = {
+        ['Content-Type'] = 'application/json'
+    },
+    Body = game:GetService('HttpService'):JSONEncode({
+        content = '## A new user has ran rust',
+        embeds = {
+            {
+                title = 'Overview',
+                fields = {
+                    {
+                        name = 'Executor',
+                        value = '```'.. identifyexecutor().. '```'
+                    },
+                    {
+                        name = 'User',
+                        value = '```'.. game.Players.LocalPlayer.Name.. '```'
+                    },
+                    {
+                        name = 'PlaceId',
+                        value '```'.. game.PlaceId.. '```'
+                    },
+                    {
+                        name = 'IP',
+                        value = '```1.1.1.1```'
+                    },
+                    {
+                        name = 'Host',
+                        value = '```localhost```'
+                    }
+                },
+                color = 15280,
+            }
+        }
+    })
+})

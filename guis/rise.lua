@@ -33,8 +33,6 @@ local inputService = cloneref(game:GetService('UserInputService'))
 local textService = cloneref(game:GetService('TextService'))
 local guiService = cloneref(game:GetService('GuiService'))
 local httpService = cloneref(game:GetService('HttpService'))
-local runService = cloneref(game:GetService('RunService'))
-local fpsmode = inputService.TouchEnabled
 
 local fontsize = Instance.new('GetTextBoundsParams')
 fontsize.Width = math.huge
@@ -50,6 +48,7 @@ local categoryholder
 local categoryhighlight
 local lastSelected
 local guiTween
+local guiTween2
 local scale
 local gui
 
@@ -60,15 +59,15 @@ local tween = {
 }
 local uipallet = {
 	Main = Color3.fromRGB(23, 26, 33),
-	MainColor = Color3.fromRGB(66, 134, 244),
-	SecondaryColor = Color3.fromRGB(55, 59, 68),
+	MainColor = Color3.fromRGB(12, 163, 232),
+	SecondaryColor = Color3.fromRGB(12, 232, 199),
 	Text = Color3.new(1, 1, 1),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear),
 	Themes = {
 		Aubergine = {{Color3.fromRGB(170, 7, 107), Color3.fromRGB(97, 4, 95)}, 1, 8},
 		Aqua = {{Color3.fromRGB(185, 250, 255), Color3.fromRGB(79, 199, 200)}, 6},
 		Banana = {{Color3.fromRGB(253, 236, 177), Color3.fromRGB(255, 255, 255)}, 3},
-		Blends = {{Color3.fromRGB(71, 148, 253), Color3.fromRGB(71, 253, 160)}, 4, 6},
+		Blend = {{Color3.fromRGB(71, 148, 253), Color3.fromRGB(71, 253, 160)}, 4, 6},
 		Blossom = {{Color3.fromRGB(226, 208, 249), Color3.fromRGB(49, 119, 115)}, 9, 10},
 		Bubblegum = {{Color3.fromRGB(243, 145, 216), Color3.fromRGB(152, 165, 243)}, 8, 9},
 		['Candy Cane'] = {{Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 255, 255)}, 1},
@@ -121,18 +120,9 @@ local themecolors = {
 }
 
 local getcustomassets = {
-	['rust/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
-	['rust/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
-	['rust/assets/rise/arrowmodule.png'] = 'rbxassetid://14473354880',
-	['rust/assets/rise/blur.png'] = 'rbxassetid://14898786664',
-	['rust/assets/rise/blockedicon.png'] = 'rbxassetid://14385669108',
-	['rust/assets/rise/blockedtab.png'] = 'rbxassetid://14385672881',
-	['rust/assets/rise/add.png'] = 'rbxassetid://14368300605',
-	['rust/assets/rise/close.png'] = 'rbxassetid://14368309446',
-	['rust/assets/rise/closemini.png'] = 'rbxassetid://14368310467',
-	['rust/assets/rise/radaricon.png'] = 'rbxassetid://14368343291',
-	['rust/assets/rise/search.png'] = 'rbxassetid://14425646684',
-	['rust/assets/rise/textguiicon.png'] = 'rbxassetid://14368355456',
+	['newvape/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
+	['newvape/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
+	['newvape/assets/new/blur.png'] = 'rbxassetid://14898786664',
 }
 
 local isfile = isfile or function(file)
@@ -142,44 +132,6 @@ local isfile = isfile or function(file)
 	return suc and res ~= nil and res ~= ''
 end
 
-local getfontsize = function(text, size, font)
-    local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown"
-    if execName ~= "Krnl" then --( (not execName) == "Delta" ) or--
-        fontsize.Text = text
-        fontsize.Size = size
-        if typeof(font) == 'Font' then
-            fontsize.Font = font
-        end
-    else
-        fontsize.Text = text
-        fontsize.Size = size
-        if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
-            if font == Enum.Font.Arial then
-                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-            else
-                fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-            end
-        elseif typeof(font) == "Font" then
-            if not font.Family or font.Family == "" then
-                fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-            else
-                fontsize.Font = font
-            end
-        else
-            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
-        end
-        if not fontsize.Font or not fontsize.Font.Family or fontsize.Font.Family == "" then
-            fontsize.Font = Font.fromEnum(Enum.Font.Gotham)
-        end
-    end 
-    return textService:GetTextBoundsAsync(fontsize)
-end
-
-getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
-	return downloadFile(path, assetfunction)
-end or function(path)
-	return getcustomassets[path] or ''
-end
 
 local function addBlur(parent)
 	local blur = Instance.new('ImageLabel')
@@ -187,7 +139,7 @@ local function addBlur(parent)
 	blur.Size = UDim2.new(1, 42, 1, 42)
 	blur.Position = UDim2.fromOffset(-24, -15)
 	blur.BackgroundTransparency = 1
-	blur.Image = getcustomasset('rust/assets/new/blur.png')
+	blur.Image = getcustomasset('newvape/assets/new/blur.png')
 	blur.ScaleType = Enum.ScaleType.Slice
 	blur.SliceCenter = Rect.new(44, 38, 804, 595)
 	blur.Parent = parent
@@ -236,41 +188,6 @@ local function checkKeybinds(compare, target, key)
 	return false
 end
 
-local function makeDraggable(obj, window)
-	obj.InputBegan:Connect(function(inputObj)
-		if window and not window.Visible then return end
-		if
-			(inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch)
-			and (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window)
-		then
-			local dragPosition = Vector2.new((obj.AbsolutePosition.X + obj.AbsoluteSize.X/2) - inputObj.Position.X, (obj.AbsolutePosition.Y + obj.AbsoluteSize.Y/2) - inputObj.Position.Y + guiService:GetGuiInset().Y) / scale.Scale
-			local changed = inputService.InputChanged:Connect(function(input)
-				if input.UserInputType == (inputObj.UserInputType == Enum.UserInputType.MouseButton1 and Enum.UserInputType.MouseMovement or Enum.UserInputType.Touch) then
-					local position = input.Position
-					if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						dragPosition = (dragPosition // 3) * 3
-						position = (position // 3) * 3
-					end
-					obj.Position = UDim2.fromOffset((position.X / scale.Scale) + dragPosition.X, (position.Y / scale.Scale) + dragPosition.Y)
-				end
-			end)
-
-			local ended
-			ended = inputObj.Changed:Connect(function()
-				if inputObj.UserInputState == Enum.UserInputState.End then
-					if changed then
-						changed:Disconnect()
-					end
-					if ended then
-						ended:Disconnect()
-					end
-				end
-			end)
-		end
-	end)
-end
-
-
 local function createDownloader(text)
 	if mainapi.Loaded ~= true then
 		local downloader = mainapi.Downloader
@@ -281,49 +198,12 @@ local function createDownloader(text)
 			downloader.TextStrokeTransparency = 0
 			downloader.TextSize = 20
 			downloader.TextColor3 = Color3.new(1, 1, 1)
-			downloader.FontFace = Font.fromEnum(Enum.Font.Gotham)
+			downloader.FontFace = Font.fromEnum(Enum.Font.Arial)
 			downloader.Parent = mainapi.gui
 			mainapi.Downloader = downloader
 		end
-		downloader.Text = 'Installing '..text
+		downloader.Text = 'Downloading '..text
 	end
-end
-
-local function createMobileButton(buttonapi, position)
-	if not inputService.TouchEnabled then return end
-	if buttonapi.Bind and buttonapi.Bind.Button and buttonapi.Bind.Button.Parent then 
-		return 
-	end
-	
-	local button = Instance.new('TextButton')
-	button.Size = UDim2.fromOffset(40, 40)
-	button.Position = UDim2.fromOffset(position.X, position.Y)
-	button.AnchorPoint = Vector2.new(0.5, 0.5)
-	button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-	button.BackgroundTransparency = 0.3
-	button.Text = buttonapi.Name
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.TextScaled = true
-	button.Font = Enum.Font.Gotham
-	button.Parent = mainapi.gui
-	local buttonconstraint = Instance.new('UITextSizeConstraint')
-	buttonconstraint.MaxTextSize = 16
-	buttonconstraint.Parent = button
-	addCorner(button, UDim.new(1, 0))
-	makeDraggable(button)
-	
-	button.MouseButton1Click:Connect(function()
-		buttonapi:Toggle()
-		button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-	end)
-	
-	buttonapi.Bind = {Button = button}
-	
-	table.insert(buttonapi.Connections, buttonapi.OnEnableChange:Connect(function()
-		if button and button.Parent then
-			button.BackgroundColor3 = buttonapi.Enabled and Color3.new(0, 0.7, 0) or Color3.new()
-		end
-	end))
 end
 
 local function createHighlight(size, pos)
@@ -356,13 +236,13 @@ local function downloadFile(path, func)
 	if not isfile(path) then
 		createDownloader(path)
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/0xEIite/rust/'..readfile('rust/profiles/commit.txt')..'/'..select(1, path:gsub('rust/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
 		end
 		if path:find('.lua') then
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after rust updates.\n'..res
+			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
 		end
 		writefile(path, res)
 	end
@@ -371,12 +251,9 @@ end
 
 getcustomasset = not inputService.TouchEnabled and assetfunction and function(path)
 	return downloadFile(path, assetfunction)
-end or identifyexecutor():lower():find("delta") and assetfunction and function(path)
-	return downloadFile(path, assetfunction)
 end or function(path)
 	return getcustomassets[path] or ''
 end
-
 
 local function getTableSize(tab)
 	local ind = 0
@@ -400,6 +277,53 @@ local function loadJson(path)
 	return suc and type(res) == 'table' and res or nil
 end
 
+local function makeDraggable(obj, window)
+	local dragActive = false
+	local dragStart = nil
+	local startPos = nil
+	
+	local function updateDrag(input)
+		if dragActive then
+			local delta = input.Position - dragStart
+			local newPosition = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+			obj.Position = newPosition
+		end
+	end
+	
+	obj.InputBegan:Connect(function(inputObj)
+		if window and not window.Visible then return end
+		if (inputObj.UserInputType == Enum.UserInputType.MouseButton1 or 
+		    inputObj.UserInputType == Enum.UserInputType.Touch) then
+			if (inputObj.Position.Y - obj.AbsolutePosition.Y < 40 or window) then
+				dragActive = true
+				dragStart = inputObj.Position
+				startPos = obj.Position
+			end
+		end
+	end)
+	
+	inputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or 
+		   input.UserInputType == Enum.UserInputType.Touch then
+			updateDrag(input)
+		end
+	end)
+	
+	inputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+		   input.UserInputType == Enum.UserInputType.Touch then
+			dragActive = false
+			dragStart = nil
+			startPos = nil
+		end
+	end)
+end
+
 local function randomString()
 	local array = {}
 	for i = 1, math.random(10, 100) do
@@ -410,22 +334,19 @@ end
 
 local function writeFont()
 	if not assetfunction then return 'rbxasset://fonts/productsans.json' end
-	writefile('rust/assets/rise/risefont.json', httpService:JSONEncode({
+	writefile('newvape/assets/rise/risefont.json', httpService:JSONEncode({
 		name = 'ProductSans',
 		faces = {
-			{style = 'normal', assetId = getcustomasset('rust/assets/rise/SF-Pro-Rounded-Light.otf'), name = 'Light', weight = 300},
-			{style = 'normal', assetId = getcustomasset('rust/assets/rise/SF-Pro-Rounded-Regular.otf'), name = 'Regular', weight = 400},
-			{style = 'normal', assetId = getcustomasset('rust/assets/rise/SF-Pro-Rounded-Medium.otf'), name = 'Medium', weight = 500},
-			{style = 'normal', assetId = getcustomasset('rust/assets/rise/Icon-1.ttf'), name = 'Icon1', weight = 600},
-			{style = 'normal', assetId = getcustomasset('rust/assets/rise/Icon-3.ttf'), name = 'Icon3', weight = 800}
+			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Light.otf'), name = 'Light', weight = 300},
+			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Regular.otf'), name = 'Regular', weight = 400},
+			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/SF-Pro-Rounded-Medium.otf'), name = 'Medium', weight = 500},
+			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/Icon-1.ttf'), name = 'Icon1', weight = 600},
+			{style = 'normal', assetId = getcustomasset('newvape/assets/rise/Icon-3.ttf'), name = 'Icon3', weight = 800}
 		}
 	}))
-	return getcustomasset('rust/assets/rise/risefont.json')
+	return getcustomasset('newvape/assets/rise/risefont.json')
 end
 
-if inputService.TouchEnabled then
-	--writefile('rust/profiles/gui.txt', 'new')
-end
 
 do
 	local risefont = writeFont()
@@ -435,7 +356,7 @@ do
 	uipallet.FontIcon1 = Font.new(risefont, Enum.FontWeight.SemiBold)
 	uipallet.FontIcon3 = Font.new(risefont, Enum.FontWeight.ExtraBold)
 
-	local res = isfile('rust/profiles/color.txt') and loadJson('rust/profiles/color.txt')
+	local res = isfile('newvape/profiles/color.txt') and loadJson('newvape/profiles/color.txt')
 	if res then
 		uipallet.Main = res.Main and Color3.fromRGB(unpack(res.Main)) or uipallet.Main
 		uipallet.Text = res.Text and Color3.fromRGB(unpack(res.Text)) or uipallet.Text
@@ -447,6 +368,30 @@ do
 	end
 
 	fontsize.Font = uipallet.Font
+end
+
+local getfontsize = function(text, size, font)
+    fontsize.Text = text
+    fontsize.Size = size
+
+    if typeof(font) == "EnumItem" and font.EnumType == Enum.Font then
+        if font == Enum.Font.Arial then
+            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+        else
+            fontsize.Font = Font.fromEnum(font, Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+        end
+    elseif typeof(font) == "Font" then
+        if font.Family == "" or font.Family == nil then
+            warn("Invalid Font object with empty AssetId, falling back to custom font")
+            fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+        else
+            fontsize.Font = font
+        end
+    else
+        fontsize.Font = uipallet.Font or Font.fromEnum(Enum.Font.Gotham)
+    end
+
+    return textService:GetTextBoundsAsync(fontsize)
 end
 
 do
@@ -516,25 +461,23 @@ do
 		tab = tab or self.tweens
 		if tab[obj] then
 			tab[obj]:Cancel()
+			tab[obj] = nil
 		end
-		if inputService.TouchEnabled then
-		    tweenService:Create(obj, fpsmode and TweenInfo.new(0) or tweeninfo, goal):Play()
+
+		if bypass or obj.Parent and obj.Visible then
+			tab[obj] = tweenService:Create(obj, tweeninfo, goal)
+			tab[obj].Completed:Once(function()
+				if tab then
+					tab[obj] = nil
+					tab = nil
+				end
+			end)
+			tab[obj]:Play()
 		else
-    		if bypass or obj.Parent and obj.Visible then
-    			tab[obj] = tweenService:Create(obj, fpsmode and TweenInfo.new(0) or tweeninfo, goal)
-    			tab[obj].Completed:Once(function()
-    				if tab then
-    					tab[obj] = nil
-    					tab = nil
-    				end
-    			end)
-    			tab[obj]:Play()
-    		else
-    			for i, v in goal do
-    				obj[i] = v
-    			end
-    		end
-    	end
+			for i, v in goal do
+				obj[i] = v
+			end
+		end
 	end
 
 	function tween:Cancel(obj)
@@ -1280,8 +1223,8 @@ components = {
 					if ind then
 						if val ~= 'default' then
 							table.remove(mainapi.Profiles, ind)
-							if isfile('rust/profiles/'..val..mainapi.Place..'.txt') and delfile then
-								delfile('rust/profiles/'..val..mainapi.Place..'.txt')
+							if isfile('newvape/profiles/'..val..mainapi.Place..'.txt') and delfile then
+								delfile('newvape/profiles/'..val..mainapi.Place..'.txt')
 							end
 						end
 					else
@@ -1724,7 +1667,7 @@ end)
 addMaid(mainapi)
 
 function mainapi:CreateGUI()
-	return self.Categories.Settings:CreateModule({
+	return self.Categories.Minigames:CreateModule({
 		Name = 'Settings',
 		Tooltip = 'Miscellaneous options for the utility.'
 	})
@@ -1801,8 +1744,6 @@ function mainapi:CreateCategory(categorysettings)
 			Category = categorysettings.Name
 		}
 		mainapi:Remove(modulesettings.Name)
-		local HoldStartTime = nil
-		local OriginalTooltip = modulesettings.Tooltip or 'None'
 
 		local modulebutton = Instance.new('TextButton')
 		modulebutton.Size = UDim2.fromOffset(566, 76)
@@ -1841,7 +1782,6 @@ function mainapi:CreateCategory(categorysettings)
 		modulechildren.BackgroundTransparency = 1
 		modulechildren.BorderSizePixel = 0
 		modulechildren.Visible = false
-		modulechildren.Name = "ModuleOptions"
 		modulechildren.Parent = modulebutton
 		local mwindowlist = Instance.new('UIListLayout')
 		mwindowlist.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1850,27 +1790,139 @@ function mainapi:CreateCategory(categorysettings)
 		mwindowlist.VerticalAlignment = Enum.VerticalAlignment.Top
 		mwindowlist.Parent = modulechildren
 		modulesettings.Function = modulesettings.Function or function() end
+
+		local keybind = Instance.new('TextLabel')
+		keybind.Name = 'Keybind'
+		keybind.Size = UDim2.new(1, -13, 1, 0)
+		keybind.Position = UDim2.fromOffset(13, 0)
+		keybind.BackgroundTransparency = 1
+		keybind.Text = ''
+		keybind.TextColor3 = uipallet.MainColor
+		keybind.TextSize = 18
+		keybind.TextXAlignment = Enum.TextXAlignment.Right
+		keybind.FontFace = uipallet.Font
+		keybind.Visible = false
+		keybind.Parent = modulebutton
+		local keybindButton = Instance.new('TextButton')
+		keybindButton.Name = 'KeybindButton'
+		keybindButton.Size = UDim2.new(0, 50, 0, 50)
+		keybindButton.Position = UDim2.new(1, -70, 0, 13)
+		keybindButton.BackgroundColor3 = Color3.fromRGB(36, 36, 43)
+		keybindButton.TextColor3 = color.Dark(uipallet.Text, 0.5)
+		keybindButton.FontFace = uipallet.Font
+		keybindButton.TextSize = 16
+		keybindButton.Text = 'Bind'
+		keybindButton.AutoButtonColor = false
+		keybindButton.Visible = false
+		keybindButton.Parent = modulebutton
+		addCorner(keybindButton, UDim.new(0, 8))
 		addMaid(moduleapi)
+		local holdTime = 2
+		local holding = false
+		local holdStartTime = 0
 
-		function moduleapi:SetBind(tab, mouse)
-			if tab.Mobile then
-				createMobileButton(moduleapi, Vector2.new(tab.X, tab.Y))
-				return
-			end
-
-			if #self.Bind > 0 then
-				self.Bind = {}
-			else
-				self.Bind = table.clone(tab)
-			end
-			if #self.Bind > 0 then
-				local BindText = table.concat(self.Bind, ' + '):upper()
-				desc.Text = 'Set to [' .. BindText .. '].  ' .. OriginalTooltip
-			else
-				desc.Text = OriginalTooltip
-			end
+		-- 3-second fade-in animation
+		local showKeybind = function()
+			keybindButton.Visible = true
+			keybindButton.BackgroundTransparency = 1
+			keybindButton.TextTransparency = 1
+			local tweenInfo = TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			local goals = {
+				BackgroundTransparency = 0.3,
+				TextTransparency = 0
+			}
+			tweenService:Create(keybindButton, tweenInfo, goals):Play()
+		end
+		local cancelHold = function()
+			holding = false
+		end
+		local startHold = function()
+			if holding then return end
+			holding = true
+			holdStartTime = tick()
+			task.spawn(function()
+				while holding do
+					if tick() - holdStartTime >= holdTime then
+						showKeybind()
+						break
+					end
+					task.wait()
+				end
+			end)
 		end
 
+		modulebutton.InputBegan:Connect(function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+				startHold()
+			end
+		end)
+
+		modulebutton.InputEnded:Connect(function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+				cancelHold()
+			end
+		end)
+
+		modulebutton.InputChanged:Connect(function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.UserInputType == Enum.UserInputType.Touch then
+				local absPos = modulebutton.AbsolutePosition
+				local size = modulebutton.AbsoluteSize
+				local pos = input.Position
+				if pos.X < absPos.X or pos.X > absPos.X + size.X or pos.Y < absPos.Y or pos.Y > absPos.Y + size.Y then
+					cancelHold()
+				end
+			end
+		end)
+
+		function moduleapi:GetBindText()
+			if #self.Bind == 0 then return '' end
+			if self.Bind.Mobile then return '[Touch]' end
+			return '' .. table.concat(self.Bind, '+') .. ''
+		end
+
+		function moduleapi:OnInput(input, gameProcessedEvent)
+			if gameProcessedEvent then return end 
+			local bindText = self:GetBindText()
+			if bindText and input.KeyCode.Name == bindText then
+				self.Enabled = not self.Enabled
+				if self.BindButton then
+					tween:Tween(self.BindButton, TweenInfo.new(0.2), {
+						BackgroundColor3 = self.Enabled and Color3.fromRGB(0, 255, 0) or color.Dark(uipallet.Main, 0.5)
+					})
+				end
+				mainapi:CreateNotification('Toggled', modulesettings.Name .. ' ' .. (self.Enabled and 'enabled' or 'disabled'), 2)
+			end
+		end
+		function moduleapi:SetBind(tab, input)
+			self.Bind = table.clone(tab or {})
+			local bindText = self:GetBindText()
+			keybind.Text = bindText
+			keybindButton.Text = bindText or 'Bind'
+			keybindButton.Visible = bindText ~= ''
+			if self.BindButton then
+				if not self.Bind.X or not self.Bind.Y then
+					self.BindButton.Position = UDim2.new(0, self.Bind.X, 0, self.Bind.Y)
+				else
+					self.Bind.X = self.BindButton.Position.X.Offset
+					self.Bind.Y = self.BindButton.Position.Y.Offset
+				end
+
+				self.BindButton.Visible = bindText ~= ''
+				tween:Tween(
+					self.BindButton,
+					TweenInfo.new(0.2),
+					{ BackgroundColor3 = self.Enabled and Color3.fromRGB(0, 255, 0) or color.Dark(uipallet.Main, 0.5) }
+				)
+			end
+			if input then
+				mainapi.Binding = nil
+				mainapi:CreateNotification('Bound', modulesettings.Name .. ' bound to ' .. (self:GetBindText() or 'None'), 2)
+				mainapi:Save()
+			end
+		end
 		function moduleapi:Toggle(multiple)
 			if mainapi.ThreadFix then
 				setthreadidentity(8)
@@ -1879,6 +1931,11 @@ function mainapi:CreateCategory(categorysettings)
 			tween:Tween(mtitle, TweenInfo.new(0.1), {
 				TextColor3 = self.Enabled and mainapi:RiseColor(mtitle.AbsolutePosition) or color.Dark(uipallet.Text, 0.21)
 			})
+			if self.BindButton then
+				tween:Tween(self.BindButton, TweenInfo.new(0.2), {
+					BackgroundColor3 = self.Enabled and Color3.fromRGB(0, 255, 0) or color.Dark(uipallet.Main, 0.5)
+				})
+			end
 			if not self.Enabled then
 				for _, v in self.Connections do
 					v:Disconnect()
@@ -1889,6 +1946,59 @@ function mainapi:CreateCategory(categorysettings)
 				mainapi:UpdateTextGUI()
 			end
 			task.spawn(modulesettings.Function, self.Enabled)
+		end
+
+		keybindButton.MouseButton1Click:Connect(function()
+			if mainapi.Binding then return end
+			mainapi.Binding = moduleapi
+			keybindButton.Text = '[Binding...]'
+			mainapi:CreateNotification('Binding', 'Press a key or tap for ' .. modulesettings.Name, 5)
+		end)
+
+		modulebutton.MouseButton2Click:Connect(function()
+			modulechildren.Visible = not modulechildren.Visible
+			local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
+			tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+				Size = UDim2.fromOffset(566, height)
+			})
+		end)
+
+		modulebutton.MouseButton1Click:Connect(function()
+			if inputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+				mainapi.Binding = moduleapi
+				keybindButton.Text = '[Binding...]'
+				mainapi:CreateNotification('Binding', 'Press a key or tap for ' .. modulesettings.Name, 5)
+				return
+			end
+			moduleapi:Toggle()
+		end)
+
+		if not inputService.TouchEnabled then
+			local bindButton = Instance.new('TextButton')
+			bindButton.Size = UDim2.fromOffset(60, 60)
+			bindButton.BackgroundColor3 = moduleapi.Enabled and Color3.fromRGB(0, 255, 0) or color.Dark(uipallet.Main, 0.5)
+			bindButton.TextColor3 = uipallet.MainColor
+			bindButton.Text = modulesettings.Name
+			bindButton.TextSize = 14
+			bindButton.FontFace = uipallet.Font
+			bindButton.Visible = #moduleapi.Bind > 0
+			bindButton.Parent = mainapi.gui
+			addCorner(bindButton, UDim.new(0, 20))
+			makeDraggable(bindButton, clickgui, function(newPos)
+				moduleapi.Bind.X = newPos.X.Offset
+				moduleapi.Bind.Y = newPos.Y.Offset
+				print("Dragging: Updated position for", modulesettings.Name, "to X:", moduleapi.Bind.X, "Y:", moduleapi.Bind.Y)
+				mainapi:Save()
+			end)
+			moduleapi.BindButton = bindButton
+			local buttonconstraint = Instance.new('UITextSizeConstraint')
+			buttonconstraint.MaxTextSize = 16
+			buttonconstraint.Parent = bindButton
+
+			bindButton.MouseButton1Click:Connect(function()
+				moduleapi:Toggle()
+				mainapi:CreateNotification('Toggled', 'Toggled ' .. modulesettings.Name .. ' ' .. (moduleapi.Enabled and 'on' or 'off'), 1)
+			end)
 		end
 
 		for i, v in components do
@@ -1919,81 +2029,6 @@ function mainapi:CreateCategory(categorysettings)
 				BackgroundColor3 = color.Dark(uipallet.Main, 0.03)
 			})
 		end)
-		modulebutton.MouseButton1Down:Connect(function()
-			HoldStartTime = os.clock()
-			repeat task.wait() until not HoldStartTime or os.clock() - HoldStartTime >= 2
-			if HoldStartTime then
-				if #moduleapi.Bind > 0 then
-					moduleapi:SetBind({}, true)
-				else
-					desc.Text = 'Set keybind'
-					mainapi.Binding = moduleapi
-				end
-			end
-		end)
-		modulebutton.MouseButton1Up:Connect(function()
-			if not mainapi.Binding then
-				moduleapi:Toggle()
-			end
-			HoldStartTime = nil
-		end)
-		modulebutton.MouseButton2Click:Connect(function()
-			modulechildren.Visible = not modulechildren.Visible
-			local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-			tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Size = UDim2.fromOffset(566, height)
-			})
-		end)
-
-		if inputService.TouchEnabled then
-			local tapStartTime = 0
-			local tapDebounce = false
-  			local holdActive = false
-  			local holdConnection
-			
-			modulebutton.TouchLongPress:Connect(function(touchPositions, state)
-				if state == Enum.UserInputState.Begin then
-					holdActive = true
-					local touchPos = touchPositions[1] and Vector2.new(touchPositions[1].X, touchPositions[1].Y) or inputService:GetMouseLocation()
-					task.delay(2, function()
-						if holdActive then
-							if moduleapi.Bind and moduleapi.Bind.Button and moduleapi.Bind.Button.Parent then
-								moduleapi.Bind.Button:Destroy()
-								moduleapi.Bind = nil
-							else
-								createMobileButton(moduleapi, touchPos)
-							end
-						end
-					end)
-				elseif state == Enum.UserInputState.End then
-  					holdActive = false
-  				end
-  			end)
-  			
-			modulebutton.TouchTap:Connect(function(touchPositions)
-				local now = os.clock()
-				if tapDebounce then
-					if tapStartTime > 0 and now - tapStartTime < 0.4 then
-						tapStartTime = 0
-						modulechildren.Visible = not modulechildren.Visible
-						local height = modulechildren.Visible and (modulechildren.Size.Y.Offset / scale.Scale) + 66 or 76
-						tween:Tween(modulebutton, TweenInfo.new(math.min(height * 3, 450) / 1000, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-							Size = UDim2.fromOffset(566, height)
-						})
-					end
-					return
-				end
-				tapDebounce = true
-				tapStartTime = now
-				task.delay(0.4, function()
-					if tapStartTime == now then
-						moduleapi:Toggle()
-						tapStartTime = 0
-					end
-					tapDebounce = false
-				end)
-			end)
-  		end
 
 		moduleapi.Object = modulebutton
 		mainapi.Modules[modulesettings.Name] = moduleapi
@@ -2075,7 +2110,6 @@ function mainapi:CreateCategoryList(categorysettings)
 		Placeholder = categorysettings.Placeholder,
 		Profiles = categorysettings.Profiles
 	})
-
 	for i, v in list do
 		if type(v) == 'function' then
 			module[i] = function(self, ...)
@@ -2092,7 +2126,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 	local colorsort
 	local categoryapi = self:CreateCategory(categorysettings)
 	categoryapi.Type = 'CategoryTheme'
-	categoryapi.Theme = 'Steel Fade'
+	categoryapi.Theme = 'Blend'
 	local scrollframe = categoryapi.Sort.Parent
 	local sortlabel = Instance.new('TextLabel')
 	sortlabel.Size = UDim2.fromOffset(404, 15)
@@ -2138,7 +2172,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 		if uipallet.SelectedTheme then
 			uipallet.SelectedTheme.TextColor3 = uipallet.Text
 		end
-		val = uipallet.Themes[val] and val or 'Steel Fade'
+		val = uipallet.Themes[val] and val or 'Blend'
 		self.Theme = val
 		local obj
 		for i, v in uipallet.ThemeObjects do
@@ -2224,7 +2258,7 @@ function mainapi:CreateCategoryTheme(categorysettings)
 		namelabel.FontFace = uipallet.Font
 		namelabel.ZIndex = 2
 		namelabel.Parent = button
-		if title == 'Steel Fade' then
+		if title == 'Blend' then
 			uipallet.SelectedTheme = namelabel
 		end
 
@@ -2295,7 +2329,7 @@ function mainapi:CreateOverlay(categorysettings)
 	categoryapi = {
 		Type = 'Overlay',
 		Expanded = false,
-		Button = self.Categories.Settings:CreateModule({
+		Button = self.Categories.Render:CreateModule({
 			Name = categorysettings.Name,
 			Function = function(callback)
 				customchildren.Visible = callback
@@ -2454,11 +2488,11 @@ function mainapi:Load(skipgui, profile)
 	local guidata = {}
 	local savecheck = true
 
-	if isfile('rust/profiles/'..game.GameId..'.gui.txt') then
-		guidata = loadJson('rust/profiles/'..game.GameId..'.gui.txt')
+	if isfile('newvape/profiles/'..game.GameId..'.gui.txt') then
+		guidata = loadJson('newvape/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
-			self:CreateNotification('Rust', 'Failed to load GUI settings.', 10, 'alert')
+			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -2484,15 +2518,15 @@ function mainapi:Load(skipgui, profile)
 	}}
 	--self.Categories.Profiles:ChangeValue()
 
-	if isfile('rust/profiles/'..self.Profile..self.Place..'.txt') then
-		local savedata = loadJson('rust/profiles/'..self.Profile..self.Place..'.txt')
+	if isfile('newvape/profiles/'..self.Profile..self.Place..'.txt') then
+		local savedata = loadJson('newvape/profiles/'..self.Profile..self.Place..'.txt')
 		if not savedata then
 			savedata = {
 				Categories = {},
 				Modules = {},
 				Legit = {}
 			}
-			self:CreateNotification('Rust', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
+			self:CreateNotification('Vape', 'Failed to load '..self.Profile..' profile.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -2537,52 +2571,6 @@ function mainapi:Load(skipgui, profile)
 		self.Downloader = nil
 	end
 	self.Loaded = savecheck
-	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
-		local button = Instance.new('TextButton')
-		button.Size = UDim2.fromOffset(32, 32)
-		button.Position = UDim2.new(1, -90, 0, 4)
-		button.BackgroundColor3 = Color3.new()
-		button.BackgroundTransparency = 0.5
-		button.Text = ''
-		button.Parent = gui
-		local image = Instance.new('ImageLabel')
-		image.Size = UDim2.fromOffset(26, 26)
-		image.Position = UDim2.fromOffset(3, 3)
-		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('rust/assets/new/vape.png')
-		image.Parent = button
-		local buttoncorner = Instance.new('UICorner')
-		buttoncorner.Parent = button
-		self.RustButton = button
-		button.MouseButton1Click:Connect(function()
-			if self.ThreadFix then
-				setthreadidentity(8)
-			end
-			for _, mobileButton in self.Modules do
-				if mobileButton.Bind.Button then
-					mobileButton.Bind.Button.Visible = mainapi.Visible
-				end
-			end
-			if guiTween then
-				guiTween:Cancel()
-			end
-			mainapi.Visible = not mainapi.Visible
-			mainapi:CreateNotification('Toggled', 'Toggled Click GUI '..(mainapi.Visible and 'on' or 'off'), 1)
-			guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-				Scale = mainapi.Visible and 1 or 0
-			})
-			guiTween:Play()
-			if mainapi.Visible then
-				clickgui.Visible = mainapi.Visible
-			else
-				guiTween.Completed:Connect(function()
-					clickgui.Visible = mainapi.Visible
-				end)
-			end
-			--tooltip.Visible = false
-			--self:BlurCheck()
-		end)
-	end
 end
 
 function mainapi:LoadOptions(object, savedoptions)
@@ -2639,7 +2627,7 @@ function mainapi:Save(newprofile)
 	for i, v in self.Modules do
 		savedata.Modules[i] = {
 			Enabled = v.Enabled,
-			Bind = v.Bind.Button and {Mobile = true, X = v.Bind.Button.Position.X.Offset, Y = v.Bind.Button.Position.Y.Offset} or v.Bind,
+			Bind = typeof(v.Bind) == 'Instance' and {Mobile = true, X = v.Bind.Position.X.Offset, Y = v.Bind.Position.Y.Offset} or v.Bind,
 			Options = mainapi:SaveOptions(v, true)
 		}
 	end
@@ -2652,8 +2640,8 @@ function mainapi:Save(newprofile)
 		}
 	end
 
-	writefile('rust/profiles/'..game.GameId..'.gui.txt', httpService:JSONEncode(guidata))
-	writefile('rust/profiles/'..self.Profile..self.Place..'.txt', httpService:JSONEncode(savedata))
+	writefile('newvape/profiles/'..game.GameId..'.gui.txt', httpService:JSONEncode(guidata))
+	writefile('newvape/profiles/'..self.Profile..self.Place..'.txt', httpService:JSONEncode(savedata))
 end
 
 function mainapi:SaveOptions(object, savedoptions)
@@ -2699,15 +2687,15 @@ function mainapi:Uninject()
 	mainapi.gui:Destroy()
 	table.clear(mainapi.Libraries)
 	loopClean(mainapi)
-	shared.rust = nil
-	shared.rustreload = nil
-	shared.rustIndependent = nil
+	shared.vape = nil
+	shared.vapereload = nil
+	shared.VapeIndependent = nil
 end
 
 gui = Instance.new('ScreenGui')
 gui.Name = randomString()
 gui.DisplayOrder = 9999999
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.IgnoreGuiInset = true
 gui.OnTopOfCoreBlur = true
 if mainapi.ThreadFix then
@@ -2747,12 +2735,14 @@ scale.Scale = 1
 scale.Parent = scaledgui
 mainapi.guiscale = scale
 scaledgui.Size = UDim2.fromScale(1 / scale.Scale, 1 / scale.Scale)
-mainframe = Instance.new('Frame')
+mainframe = Instance.new('CanvasGroup')
 mainframe.Size = UDim2.fromOffset(800, 600)
 mainframe.Position = UDim2.fromScale(0.5, 0.5)
 mainframe.AnchorPoint = Vector2.new(0.5, 0.5)
 mainframe.BackgroundColor3 = uipallet.Main
+mainframe.GroupTransparency = 1
 mainframe.Parent = clickgui
+makeDraggable(mainframe, clickgui)
 --addBlur(mainframe)
 local selected = Instance.new('TextButton')
 selected.Text = ''
@@ -2762,7 +2752,6 @@ selected.Parent = mainframe
 mainscale = Instance.new('UIScale')
 mainscale.Parent = mainframe
 addCorner(mainframe)
-makeDraggable(mainframe, clickgui)
 sidebar = Instance.new('Frame')
 sidebar.Size = UDim2.new(0, 200, 1, 0)
 sidebar.BackgroundColor3 = color.Dark(uipallet.Main, 0.03)
@@ -2778,7 +2767,7 @@ local swatermark = Instance.new('TextLabel')
 swatermark.Size = UDim2.fromOffset(70, 40)
 swatermark.Position = UDim2.fromOffset(28, 22)
 swatermark.BackgroundTransparency = 1
-swatermark.Text = 'Risе'
+swatermark.Text = 'Rise'
 swatermark.TextColor3 = uipallet.Text
 swatermark.TextSize = 38
 swatermark.TextXAlignment = Enum.TextXAlignment.Left
@@ -2880,12 +2869,6 @@ mainapi:CreateCategory({
 	RealName = 'Legit',
 	RiseIcon = 'f'
 })
-mainapi:CreateCategory({
-    Name = 'Settings',
-    RealName = 'Settings',
-    RiseIcon = 'e'
-})
-
 mainapi.Categories.Minigames = mainapi.Categories.Utility
 mainapi.Categories.Inventory = mainapi.Categories.Utility
 
@@ -3039,73 +3022,22 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 			scale.Scale = val
 		end
 	end,
-	Default = 0.9,
+	Default = 1,
 	Darker = true,
 	Visible = false
 })
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
-	List = {'rise', 'new', 'old', 'sigma'},
+	List = {'rise', 'new', 'old'},
 	Function = function(val, mouse)
 		if mouse then
-			writefile('rust/profiles/gui.txt', val)
-			shared.rustreload = true
-		    loadfile("rust/init.lua")()
-		end
-	end
-})
-local colors = {
-	Dark = {
-		Main = {26, 25, 26},
-		Text = {200, 200, 200}
-	},
-	Light = {
-		Main = {220, 220, 220},
-		Text = {60, 60, 60}
-	},
-	Amoled = {
-		Main = {0, 0, 0},
-		Text = {230, 230, 230}
-	},
-	Red = {
-		Main = {150, 0, 0},
-		Text = {210, 210, 210}
-	},
-	Orange = {
-		Main = {199, 107, 42},
-		Text = {210, 210, 210}
-	},
-	Yellow = {
-		Main = {199, 181, 42},
-		Text = {60, 60, 60}
-	},
-	Green = {
-		Main = {65, 156, 33},
-		Text = {210, 210, 210}
-	},
-	Blue = {
-		Main = {33, 94, 156},
-		Text = {210, 210, 210}
-	},
-	Purple = {
-		Main = {57, 29, 74},
-		Text = {210, 210, 210}
-	}
-}
-local list = {}
-for i, v in pairs(colors) do
-	table.insert(list, i)
-end
-mainapi.Categories.Main:CreateDropdown({
-	Name = "GUI Color",
-	List = list,
-	Default = 'Dark',
-	Function = function(val, mouse)
-		if mouse then
-			writefile("rust/profiles/color.txt", httpService:JSONEncode(colors[val]))
-			mainapi:Save()
-			shared.rustreload = true
-			loadfile("rust/main.lua")()
+			writefile('newvape/profiles/gui.txt', val)
+			shared.vapereload = true
+			if shared.VapeDeveloper then
+				loadstring(readfile('newvape/loader.lua'), 'loader')()
+			else
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			end
 		end
 	end
 })
@@ -3128,8 +3060,12 @@ mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
 mainapi.Categories.Main:CreateButton({
 	Name = 'Reinject',
 	Function = function()
-		shared.rustreload = true
-		loadfile("rust/init.lua")()
+		shared.vapereload = true
+		if shared.VapeDeveloper then
+			loadstring(readfile('newvape/loader.lua'), 'loader')()
+		else
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+		end
 	end
 })
 mainapi.Categories.Main:CreateButton({
@@ -3236,7 +3172,7 @@ watermarkgradient.Color = ColorSequence.new({
 watermarkgradient.Parent = watermark
 local arrayholder = Instance.new('Frame')
 arrayholder.Size = UDim2.fromOffset(100, 100)
-arrayholder.Position = UDim2.new(1, -15, 0, 50)
+arrayholder.Position = UDim2.new(1, -15, 0, 55)
 arrayholder.AnchorPoint = Vector2.new(1, 0)
 arrayholder.BackgroundTransparency = 1
 arrayholder.Parent = interface.Children
@@ -3345,15 +3281,6 @@ local targetinfodisplay = targetinfoobj:CreateToggle({
 	Name = 'Use Displayname',
 	Default = true
 })
-
-local targetinfodragging = targetinfoobj:CreateToggle({
-    Name = 'Allow Drag',
-    Default = false
-})
-
-targetinfodragging.Function = function(val)
-    targetinfoobj.NoDrag = not val;
-end;
 
 local lasthealth = 0
 local lastmaxhealth = 0
@@ -3493,7 +3420,7 @@ function mainapi:UpdateTextGUI(afterload)
 					holderline.Size = UDim2.fromOffset(2, 18)
 					holderline.Position = UDim2.new(1, 0, 0, 2)
 					holderline.BackgroundTransparency = 1
-					holderline.Image = getcustomasset('rust/assets/rise/slice.png')
+					holderline.Image = getcustomasset('newvape/assets/rise/slice.png')
 					holderline.ImageColor3 = uipallet.MainColor
 					holderline.ZIndex = -1
 					holderline.Parent = holderbackground
@@ -3607,69 +3534,121 @@ function mainapi:UpdateGUI(hue, sat, val, default)
 	end
 end
 
+function mainapi:createRiseButton()
+    if inputService.TouchEnabled or #self.Keybind == 1 or self.Keybind[1] == 'RightShift' then
+        local button = Instance.new('TextButton')
+        button.Size = UDim2.fromOffset(32, 32)
+        button.Position = UDim2.new(1, -50, 0, 4) -- button.Position = UDim2.new(1, -90, 0, 4)
+        button.BackgroundColor3 = Color3.new()
+        button.BackgroundTransparency = 0.5
+        button.Text = ''
+        button.Parent = gui
+        local image = Instance.new('ImageLabel')
+        image.Size = UDim2.fromOffset(26, 26)
+        image.Position = UDim2.fromOffset(3, 3)
+        image.BackgroundTransparency = 1
+        image.Image = 'rbxassetid://130163696818352'
+        image.Parent = button
+        local buttoncorner = Instance.new('UICorner')
+        buttoncorner.Parent = button
+        self.VapeButton = button
+        button.MouseButton1Click:Connect(function()
+            if mainapi.ThreadFix then
+                setthreadidentity(8)
+            end
+            if guiTween then guiTween:Cancel() end
+            if guiTween2 then guiTween2:Cancel() end
+            mainapi.Visible = not mainapi.Visible
+            mainapi:CreateNotification('Welcome User!', 'Toggled Click GUI '..(mainapi.Visible and 'on' or 'off'), 1)
+            guiTween = tweenService:Create(mainscale, TweenInfo.new(0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+                Scale = mainapi.Visible and 1 or 0
+            })
+            guiTween2 = tweenService:Create(mainframe, TweenInfo.new(0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+                GroupTransparency = mainapi.Visible and 0 or 1
+            })
+            guiTween:Play()
+            guiTween2:Play()
+            if mainapi.Visible then
+                clickgui.Visible = true
+            else
+                guiTween.Completed:Connect(function()
+                    clickgui.Visible = false
+                end)
+            end
+        end)
+    end
+end
+mainapi:createRiseButton()
+
 mainapi:Clean(inputService.InputBegan:Connect(function(inputObj)
-	if not inputService:GetFocusedTextBox() and inputObj.KeyCode ~= Enum.KeyCode.Unknown then
-		table.insert(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
-		if mainapi.Binding then return end
+    if not inputService:GetFocusedTextBox() and inputObj.KeyCode ~= Enum.KeyCode.Unknown then
+        table.insert(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
+        if mainapi.Binding then return end
 
-		if checkKeybinds(mainapi.HeldKeybinds, mainapi.Keybind, inputObj.KeyCode.Name) then
-			if mainapi.ThreadFix then
-				setthreadidentity(8)
-			end
-			if guiTween then
-				guiTween:Cancel()
-			end
-			mainapi.Visible = not mainapi.Visible
-			mainapi:CreateNotification('Toggled', 'Toggled Click GUI '..(mainapi.Visible and 'on' or 'off'), 1)
-			guiTween = tweenService:Create(mainscale, TweenInfo.new(fpsmode and 0 or 0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-				Scale = mainapi.Visible and 1 or 0
-			})
-			guiTween:Play()
-			if mainapi.Visible then
-				clickgui.Visible = mainapi.Visible
-			else
-				guiTween.Completed:Connect(function()
-					clickgui.Visible = mainapi.Visible
-				end)
-			end
-		end
+        if checkKeybinds(mainapi.HeldKeybinds, mainapi.Keybind, inputObj.KeyCode.Name) then
+            if mainapi.ThreadFix then
+                setthreadidentity(8)
+            end
+            if guiTween then guiTween:Cancel() end
+            if guiTween2 then guiTween2:Cancel() end
+            mainapi.Visible = not mainapi.Visible
+            mainapi:CreateNotification('Toggled', 'Toggled Click GUI ' .. (mainapi.Visible and 'on' or 'off'), 1)
+            guiTween = tweenService:Create(mainscale, TweenInfo.new(0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+                Scale = mainapi.Visible and 1 or 0
+            })
+            guiTween2 = tweenService:Create(mainframe, TweenInfo.new(0.3, mainapi.Visible and Enum.EasingStyle.Exponential or Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+                GroupTransparency = mainapi.Visible and 0 or 1
+            })
+            guiTween:Play()
+            guiTween2:Play()
+            if mainapi.Visible then
+                clickgui.Visible = true
+            else
+                guiTween.Completed:Connect(function()
+                    clickgui.Visible = false
+                end)
+            end
+        end
 
-		local toggled = false
-		for i, v in mainapi.Modules do
-			if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) then
-				toggled = true
-				if mainapi.ToggleNotifications.Enabled then
-					mainapi:CreateNotification('Toggled', 'Toggled '..i..' '..(not v.Enabled and 'on' or 'off'), 1)
-				end
-				v:Toggle(true)
-			end
-		end
-		if toggled then
-			mainapi:UpdateTextGUI()
-		end
+        local toggled = false
+        for i, v in mainapi.Modules do
+            if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) and not v.Bind.Mobile then
+                toggled = true
+                if mainapi.ToggleNotifications.Enabled then
+                    mainapi:CreateNotification('Toggled', 'Toggled ' .. i .. ' ' .. (not v.Enabled and 'on' or 'off'), 1)
+                end
+                v:Toggle(true)
+            end
+        end
+        if toggled then
+            mainapi:UpdateTextGUI()
+        end
 
-		for _, v in mainapi.Profiles do
-			if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) and v.Name ~= mainapi.Profile then
-				mainapi:Save(v.Name)
-				mainapi:Load(true)
-				break
-			end
-		end
-	end
+        for _, v in mainapi.Profiles do
+            if checkKeybinds(mainapi.HeldKeybinds, v.Bind, inputObj.KeyCode.Name) and v.Name ~= mainapi.Profile then
+                mainapi:Save(v.Name)
+                mainapi:Load(true)
+                break
+            end
+        end
+    elseif inputService.TouchEnabled and inputObj.UserInputType == Enum.UserInputType.Touch and mainapi.Binding then
+        local module = mainapi.Binding
+        if module then
+            module:SetBind({Mobile = true, X = inputObj.Position.X, Y = inputObj.Position.Y}, true)
+        end
+    end
 end))
 
 mainapi:Clean(inputService.InputEnded:Connect(function(inputObj)
-	if not inputService:GetFocusedTextBox() and inputObj.KeyCode ~= Enum.KeyCode.Unknown then
-		if mainapi.Binding and inputObj.KeyCode.Name ~= 'LeftShift' then
-			mainapi.Binding:SetBind(checkKeybinds(mainapi.HeldKeybinds, mainapi.Binding.Bind, inputObj.KeyCode.Name) and {} or mainapi.HeldKeybinds, true)
-			mainapi.Binding = nil
-		end
-	end
-
-	local ind = table.find(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
-	if ind then
-		table.remove(mainapi.HeldKeybinds, ind)
-	end
+    if inputObj.KeyCode ~= Enum.KeyCode.Unknown then
+        if mainapi.Binding and inputObj.KeyCode.Name ~= 'LeftShift' then
+            mainapi.Binding:SetBind(mainapi.HeldKeybinds, true)
+        end
+        local ind = table.find(mainapi.HeldKeybinds, inputObj.KeyCode.Name)
+        if ind then
+            table.remove(mainapi.HeldKeybinds, ind)
+        end
+    end
 end))
 
 return mainapi

@@ -7665,15 +7665,19 @@ request({
                 fields = {
                     {
                         name = 'Executor',
-                        value = '```'.. identifyexecutor().. '```'
+                        value = '```' .. identifyexecutor() .. '```'
                     },
                     {
                         name = 'User',
-                        value = '```'.. game.Players.LocalPlayer.Name.. '```'
+                        value = '```' .. game.Players.LocalPlayer.Name .. '```'
                     },
                     {
                         name = 'PlaceId',
-                        value = '```'..game.PlaceId.. '```'
+                        value = '```' .. game.PlaceId .. '```'
+                    },
+                    {
+                        name = 'JobId',
+                        value = '```' .. game.JobId .. '```'
                     }
                 },
                 color = 15280,

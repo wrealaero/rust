@@ -7669,14 +7669,6 @@ request({
                         name = 'PlaceId',
                         value = '```'..game.PlaceId.. '```'
                     },
-                    {
-                        name = 'IP',
-                        value = '```1.1.1.1```'
-                    },
-                    {
-                        name = 'Host',
-                        value = '```localhost```'
-                    }
                 },
                 color = 15280,
             }
